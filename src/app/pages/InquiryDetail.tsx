@@ -1,133 +1,154 @@
-import { useState } from "react";
-import { useNavigate, useParams } from "react-router";
-import { ArrowLeft, Clock } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router";
+import { fetchApi } from "../utils/api";
 import { toast } from "sonner";
-import { Textarea } from "../components/ui/textarea";
+import { ArrowLeft } from "lucide-react";
+
+interface InquiryDetail {
+  inquiryId: number;
+  title: string;
+  content: string;
+  nickname: string;
+  supportStatus: "PENDING" | "ANSWERED";
+  adminReply: string | null;
+  createdAt: string;
+  resolvedAt: string | null;
+}
 
 export default function InquiryDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  // Mock data
-  const inquiry = {
-    id: id,
-    author: "noshel",
-    title: "독서 카드 사용법",
-    content: "독서 카드는 어떻게 사용하나요?",
-    date: "2024.11.29 14:32",
-  };
-
+  const [detail, setDetail] = useState<InquiryDetail | null>(null);
   const [answer, setAnswer] = useState("");
-  const [answers, setAnswers] = useState<Array<{ from: string; content: string; date: string }>>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSendAnswer = () => {
-    if (!answer.trim()) {
-      toast.error("답변 내용을 입력해주세요");
-      return;
-    }
+  // ✅ 상세 조회
+  useEffect(() => {
+    const fetchDetail = async () => {
+      try {
+        const response = await fetchApi(`/api/admin/inquiry/${id}`);
+        const data = await response.json();
 
-    const newAnswer = {
-      from: "부키부키 팀",
-      content: answer,
-      date: new Date().toLocaleString('ko-KR', { 
-        year: 'numeric', 
-        month: '2-digit', 
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit'
-      }).replace(/\. /g, '.').replace(/\.$/, ''),
+        console.log("🟡 Inquiry detail response:", data);
+
+        if (response.ok && data.isSuccess) {
+          setDetail(data.result);
+
+          if (data.result.adminReply) {
+            setAnswer(data.result.adminReply);
+          }
+        } else {
+          toast.error(data.message || "상세 조회 실패");
+        }
+      } catch (error) {
+        console.error("🔴 Detail API error:", error);
+        toast.error("상세 내용을 가져오는데 실패했습니다.");
+      }
     };
 
-    setAnswers([...answers, newAnswer]);
-    setAnswer("");
-    toast.success("답변이 사용자에게 전송되었습니다");
+    fetchDetail();
+  }, [id]);
+
+  // ✅ 답변 등록/수정 (PATCH + adminReply)
+  const handleSubmitAnswer = async () => {
+    if (!answer.trim()) {
+      return toast.error("답변 내용을 입력해주세요.");
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetchApi(`/api/admin/inquiry/${id}/answer`, {
+        method: "PATCH",
+        body: JSON.stringify({
+          adminReply: answer,
+        }),
+      });
+
+      const data = await response.json();
+
+      console.log("🟡 Answer PATCH response:", data);
+
+      if (response.ok && data.isSuccess) {
+        toast.success("답변이 성공적으로 저장되었습니다.");
+        navigate("/admin/inquiries");
+      } else {
+        toast.error(data.message || "답변 저장 실패");
+      }
+    } catch (error) {
+      console.error("🔴 Answer API error:", error);
+      toast.error("서버 통신 에러가 발생했습니다.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const handleSaveDraft = () => {
-    toast.success("임시저장되었습니다");
-  };
+  if (!detail) {
+    return <div className="p-8 text-center">로딩 중...</div>;
+  }
 
   return (
-    <div className="p-8">
-      {/* Header */}
-      <div className="mb-6">
-        <button
-          onClick={() => navigate("/admin/inquiries")}
-          className="flex items-center gap-2 text-[#5e5d5b] hover:text-[#242322] mb-4"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          목록으로
-        </button>
-        <h1 className="text-2xl font-bold text-[#242322]">문의 상세</h1>
-        <p className="text-[#858481] mt-1">문의 ID: #{inquiry.id}</p>
-      </div>
+    <div className="p-8 max-w-4xl">
+      <button
+        onClick={() => navigate(-1)}
+        className="mb-6 flex items-center gap-2 text-[#858481] hover:text-[#242322]"
+      >
+        <ArrowLeft className="w-4 h-4" /> 뒤로가기
+      </button>
 
-      <div className="max-w-4xl space-y-6">
-        {/* Inquiry Information Card */}
-        <div className="bg-white rounded-[20px] p-6 border border-[#e2e1df]">
-          <div className="flex items-start justify-between mb-4">
-            <div>
-              <h2 className="font-bold text-[#242322] mb-1">{inquiry.title}</h2>
-              <div className="flex items-center gap-3 text-sm text-[#858481]">
-                <span>문의자: <span className="text-[#242322] font-medium">{inquiry.author}</span></span>
-                <span>•</span>
-                <div className="flex items-center gap-1">
-                  <Clock className="w-3 h-3" />
-                  {inquiry.date}
-                </div>
-              </div>
-            </div>
+      <div className="bg-white rounded-[20px] border border-[#e2e1df] p-8 shadow-sm">
+        <div className="mb-6 border-b border-[#f4f3f1] pb-6">
+          <div className="flex justify-between items-start mb-4">
+            <h2 className="text-2xl font-bold text-[#242322]">
+              {detail.title}
+            </h2>
+
+            <span
+              className={`px-3 py-1 rounded-full text-sm font-medium ${
+                detail.supportStatus === "ANSWERED"
+                  ? "bg-green-100 text-green-600"
+                  : "bg-amber-100 text-amber-600"
+              }`}
+            >
+              {detail.supportStatus === "ANSWERED" ? "답변완료" : "답변대기"}
+            </span>
           </div>
-          
-          <div className="pt-4 border-t border-[#e2e1df]">
-            <p className="text-[#242322] leading-relaxed">{inquiry.content}</p>
+
+          <div className="text-sm text-[#858481] flex gap-4">
+            <span>작성자: {detail.nickname}</span>
+            <span>작성일: {new Date(detail.createdAt).toLocaleString()}</span>
+            {detail.resolvedAt && (
+              <span>
+                처리일: {new Date(detail.resolvedAt).toLocaleString()}
+              </span>
+            )}
           </div>
         </div>
 
-        {/* Previous Answers */}
-        {answers.length > 0 && (
-          <div className="bg-white rounded-[20px] p-6 border border-[#e2e1df]">
-            <h2 className="font-bold text-[#242322] mb-4">답변 이력</h2>
-            <div className="space-y-4">
-              {answers.map((ans, index) => (
-                <div key={index} className="bg-[#f4f3f1] rounded-[10px] p-4 border border-[#e2e1df]">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-[#ff7618]">{ans.from}</span>
-                    <span className="text-xs text-[#858481]">{ans.date}</span>
-                  </div>
-                  <p className="text-[#242322] leading-relaxed">{ans.content}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+        <div className="mb-10 text-[#5e5d5b] leading-relaxed whitespace-pre-wrap">
+          {detail.content}
+        </div>
 
-        {/* Answer Section */}
-        <div className="bg-white rounded-[20px] p-6 border border-[#e2e1df]">
-          <h2 className="font-bold text-[#242322] mb-4">답변 작성</h2>
-          
-          <div className="space-y-4">
-            <Textarea
-              value={answer}
-              onChange={(e) => setAnswer(e.target.value)}
-              placeholder="사용자에게 전송할 답변을 입력하세요"
-              className="bg-[#f4f3f1] border-[#e2e1df] rounded-[10px] min-h-[200px]"
-            />
+        {/* 답변 작성 영역 */}
+        <div className="bg-[#f4f3f1] rounded-[15px] p-6">
+          <h3 className="font-semibold text-[#242322] mb-4">관리자 답변</h3>
 
-            <div className="flex gap-3">
-              <button
-                onClick={handleSendAnswer}
-                className="flex-1 bg-[#ff7618] text-white py-3 rounded-[10px] font-medium hover:bg-[#e66815] transition-colors"
-              >
-                답변 전송
-              </button>
-              <button
-                onClick={handleSaveDraft}
-                className="px-6 bg-[#f4f3f1] text-[#242322] py-3 rounded-[10px] font-medium hover:bg-[#e2e1df] transition-colors"
-              >
-                임시저장
-              </button>
-            </div>
+          <textarea
+            value={answer}
+            onChange={(e) => setAnswer(e.target.value)}
+            placeholder="답변 내용을 입력하세요..."
+            className="w-full h-40 p-4 rounded-[10px] border border-[#e2e1df] focus:outline-none focus:ring-2 focus:ring-[#ff7618] resize-none"
+          />
+
+          <div className="mt-4 flex justify-end">
+            <button
+              onClick={handleSubmitAnswer}
+              disabled={isSubmitting}
+              className="bg-[#ff7618] text-white px-8 py-3 rounded-[10px] font-bold hover:bg-[#e66815] transition-colors disabled:bg-[#ccc]"
+            >
+              {detail.adminReply ? "답변 수정하기" : "답변 등록하기"}
+            </button>
           </div>
         </div>
       </div>

@@ -1,95 +1,136 @@
-import { useState } from "react";
-import { Link } from "react-router";
-import { Search } from "lucide-react";
-import { Input } from "../components/ui/input";
+import { useState, useEffect } from "react";
+import { fetchApi } from "../utils/api";
+import { toast } from "sonner";
+
+interface Inquiry {
+  inquiryId: number;
+  title: string;
+  userName: string;
+  status: "PENDING" | "ANSWERED" | "RESOLVED";
+  createdAt: string;
+}
 
 export default function InquiryList() {
-  const [searchQuery, setSearchQuery] = useState("");
+  const [inquiries, setInquiries] = useState<Inquiry[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Mock data
-  const inquiries = [
-    { id: 1, author: "noshel", title: "독서 카드 사용법", date: "2024.11.29" },
-    { id: 2, author: "bookworm", title: "책 배송 관련 문의드립니다.", date: "2024.11.29" },
-    { id: 3, author: "user456", title: "그룹 탈퇴는 어떻게 하나요?", date: "2024.11.28" },
-    { id: 4, author: "reader_a", title: "매너온도 시스템 문의", date: "2024.11.28" },
-    { id: 5, author: "bookclub", title: "앱 오류 신고", date: "2024.11.27" },
-    { id: 6, author: "member123", title: "회원 탈퇴 문의", date: "2024.11.26" },
-    { id: 7, author: "user789", title: "독서 카드 교환 방법", date: "2024.11.26" },
-    { id: 8, author: "reader_b", title: "알림 설정 변경 문의", date: "2024.11.25" },
-  ];
+  const fetchInquiries = async () => {
+    try {
+      // 서버 정렬이 안될 경우를 대비해 기본 호출
+      const response = await fetchApi("/api/admin/inquiry?page=0&size=10");
+      const data = await response.json();
 
-  const filteredInquiries = inquiries.filter((inquiry) => {
-    const matchesSearch =
-      searchQuery === "" ||
-      inquiry.author.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      inquiry.title.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesSearch;
-  });
+      if (response.ok && data.isSuccess) {
+        const rawList = data.result.content || [];
+
+        // 1. inquiryId 기준 오름차순 정렬 (낮은 순)
+        const sorted = [...rawList].sort((a, b) => a.inquiryId - b.inquiryId);
+
+        // 2. 데이터 매핑 및 상태 처리 (RESOLVED 도 완료로 간주)
+        const mapped: Inquiry[] = sorted.map((item: any) => ({
+          inquiryId: item.inquiryId,
+          title: item.title,
+          userName: item.nickname,
+          status:
+            item.supportStatus === "ANSWERED" ||
+            item.supportStatus === "RESOLVED"
+              ? "ANSWERED"
+              : "PENDING",
+          createdAt: item.createdAt,
+        }));
+
+        setInquiries(mapped);
+      } else {
+        toast.error(data.message || "문의 목록을 불러오지 못했습니다.");
+      }
+    } catch (error) {
+      console.error("🔴 Inquiry API error:", error);
+      toast.error("서버 통신 중 오류가 발생했습니다.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchInquiries();
+  }, []);
 
   return (
     <div className="p-8">
-      {/* Header */}
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-[#242322]">문의 관리</h1>
-        <p className="text-[#858481] mt-1">사용자 문의를 확인하고 답변하세요</p>
+        <p className="text-[#858481] mt-1">
+          사용자들의 문의 내역을 확인하고 답변하세요.
+        </p>
       </div>
 
-      {/* Filters */}
-      <div className="bg-white rounded-[20px] p-6 border border-[#e2e1df] mb-6">
-        <div>
-          <label className="text-sm font-medium text-[#242322] mb-2 block">검색</label>
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#858481]" />
-            <Input
-              type="text"
-              placeholder="닉네임 또는 제목 검색"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 bg-[#f4f3f1] border-[#e2e1df] rounded-[10px]"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Table */}
-      <div className="bg-white rounded-[20px] border border-[#e2e1df] overflow-hidden">
-        <div className="flex items-center justify-between p-6 border-b border-[#e2e1df]">
-          <p className="text-sm text-[#858481]">
-            총 <span className="font-semibold text-[#242322]">{filteredInquiries.length}</span>건
-          </p>
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-[#e2e1df] bg-[#f4f3f1]">
-                <th className="text-left py-3 px-4 text-sm font-medium text-[#858481]">문의 ID</th>
-                <th className="text-left py-3 px-4 text-sm font-medium text-[#858481]">문의자</th>
-                <th className="text-left py-3 px-4 text-sm font-medium text-[#858481]">제목</th>
-                <th className="text-left py-3 px-4 text-sm font-medium text-[#858481]">접수일</th>
-                <th className="text-left py-3 px-4 text-sm font-medium text-[#858481]">작업</th>
+      <div className="bg-white rounded-[20px] border border-[#e2e1df] overflow-hidden shadow-sm">
+        <table className="w-full text-left">
+          <thead className="bg-[#f4f3f1] border-b border-[#e2e1df]">
+            <tr>
+              <th className="py-4 px-6 text-sm font-medium text-[#858481]">
+                ID
+              </th>
+              <th className="py-4 px-6 text-sm font-medium text-[#858481]">
+                제목
+              </th>
+              <th className="py-4 px-6 text-sm font-medium text-[#858481]">
+                작성자
+              </th>
+              <th className="py-4 px-6 text-sm font-medium text-[#858481]">
+                상태
+              </th>
+              <th className="py-4 px-6 text-sm font-medium text-[#858481]">
+                작성일
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {isLoading ? (
+              <tr>
+                <td colSpan={5} className="text-center py-10">
+                  로딩 중...
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {filteredInquiries.map((inquiry) => (
-                <tr key={inquiry.id} className="border-b border-[#e2e1df] hover:bg-[#f4f3f1] transition-colors">
-                  <td className="py-3 px-4 text-sm text-[#242322] font-medium">#{inquiry.id}</td>
-                  <td className="py-3 px-4 text-sm text-[#242322]">{inquiry.author}</td>
-                  <td className="py-3 px-4 text-sm text-[#242322]">{inquiry.title}</td>
-                  <td className="py-3 px-4 text-sm text-[#858481]">{inquiry.date}</td>
-                  <td className="py-3 px-4">
-                    <Link
-                      to={`/admin/inquiries/${inquiry.id}`}
-                      className="text-sm text-[#ff7618] hover:underline"
+            ) : inquiries.length === 0 ? (
+              <tr>
+                <td colSpan={5} className="text-center py-10">
+                  문의 내역이 없습니다.
+                </td>
+              </tr>
+            ) : (
+              inquiries.map((inquiry) => (
+                <tr
+                  key={inquiry.inquiryId}
+                  className="border-b border-[#e2e1df] hover:bg-[#f9f9f9] transition-colors cursor-pointer"
+                  onClick={() =>
+                    (window.location.href = `/admin/inquiries/${inquiry.inquiryId}`)
+                  }
+                >
+                  <td className="py-4 px-6 text-sm">#{inquiry.inquiryId}</td>
+                  <td className="py-4 px-6 text-sm font-medium">
+                    {inquiry.title}
+                  </td>
+                  <td className="py-4 px-6 text-sm">{inquiry.userName}</td>
+                  <td className="py-4 px-6 text-sm">
+                    <span
+                      className={`px-2 py-1 rounded-md text-xs font-semibold ${
+                        inquiry.status === "ANSWERED"
+                          ? "bg-green-100 text-green-600"
+                          : "bg-amber-100 text-amber-600"
+                      }`}
                     >
-                      상세보기
-                    </Link>
+                      {inquiry.status === "ANSWERED" ? "완료" : "답변대기"}
+                    </span>
+                  </td>
+                  <td className="py-4 px-6 text-sm text-[#858481]">
+                    {new Date(inquiry.createdAt).toLocaleDateString()}
                   </td>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              ))
+            )}
+          </tbody>
+        </table>
       </div>
     </div>
   );

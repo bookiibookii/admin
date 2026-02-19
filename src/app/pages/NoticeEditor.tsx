@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { Textarea } from "../components/ui/textarea";
+import { fetchApi } from "../utils/api";
 
 export default function NoticeEditor() {
   const { id } = useParams();
@@ -12,19 +13,38 @@ export default function NoticeEditor() {
   const isEdit = !!id;
 
   const [title, setTitle] = useState("");
+  const [summary, setSummary] = useState("");
   const [content, setContent] = useState("");
 
+  // 수정 모드일 때 기존 데이터 불러오기 (GET)
   useEffect(() => {
-    if (isEdit) {
-      // Mock data for editing
-      setTitle("12월 업데이트 안내");
-      setContent("새로운 기능이 추가되었습니다! 독서 카드 꾸미기 기능을 확인해보세요.");
-    }
-  }, [isEdit]);
+    const fetchNoticeDetail = async () => {
+      if (!isEdit) return;
 
-  const handleSave = () => {
+      try {
+        const response = await fetchApi(`/api/admin/notice/${id}`);
+        if (response.ok) {
+          const data = await response.json();
+          setTitle(data.result.title || "");
+          setSummary(data.result.summary || "");
+          setContent(data.result.content || "");
+        }
+      } catch (error) {
+        toast.error("기존 공지사항을 불러오지 못했습니다.");
+      }
+    };
+
+    fetchNoticeDetail();
+  }, [id, isEdit]);
+
+  // 공지사항 저장 (POST / PATCH)
+  const handleSave = async () => {
     if (!title.trim()) {
       toast.error("제목을 입력해주세요");
+      return;
+    }
+    if (!summary.trim()) {
+      toast.error("요약을 입력해주세요");
       return;
     }
     if (!content.trim()) {
@@ -32,10 +52,36 @@ export default function NoticeEditor() {
       return;
     }
 
-    toast.success(isEdit ? "공지사항이 수정되었습니다" : "공지사항이 등록되었습니다");
-    setTimeout(() => {
-      navigate("/admin/notices");
-    }, 1500);
+    // 스웨거 명세에 맞춘 Request Body
+    const requestBody = {
+      title: title.trim(),
+      content: content.trim(),
+      summary: summary.trim(),
+    };
+
+    try {
+      const url = isEdit ? `/api/admin/notice/${id}` : "/api/admin/notice";
+      const method = isEdit ? "PATCH" : "POST";
+
+      const response = await fetchApi(url, {
+        method: method,
+        body: JSON.stringify(requestBody),
+      });
+
+      if (response.ok) {
+        toast.success(
+          isEdit ? "공지사항이 수정되었습니다" : "공지사항이 등록되었습니다",
+        );
+        setTimeout(() => {
+          navigate("/admin/notices");
+        }, 1500);
+      } else {
+        toast.error("저장에 실패했습니다. 다시 시도해주세요.");
+      }
+    } catch (error) {
+      console.error("저장 통신 에러:", error);
+      toast.error("서버 통신 오류가 발생했습니다.");
+    }
   };
 
   const handleCancel = () => {
@@ -57,7 +103,9 @@ export default function NoticeEditor() {
           {isEdit ? "공지사항 수정" : "공지사항 등록"}
         </h1>
         <p className="text-[#858481] mt-1">
-          {isEdit ? "공지사항 내용을 수정하세요" : "새로운 공지사항을 작성하세요"}
+          {isEdit
+            ? "공지사항 내용을 수정하세요"
+            : "새로운 공지사항을 작성하세요"}
         </p>
       </div>
 
@@ -75,6 +123,21 @@ export default function NoticeEditor() {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="공지사항 제목을 입력하세요"
+                className="bg-[#f4f3f1] border-[#e2e1df] rounded-[10px]"
+              />
+            </div>
+
+            {/* Summary (새로 추가된 부분) */}
+            <div className="space-y-2">
+              <Label htmlFor="summary" className="text-[#242322] font-medium">
+                요약 (Summary)
+              </Label>
+              <Input
+                id="summary"
+                type="text"
+                value={summary}
+                onChange={(e) => setSummary(e.target.value)}
+                placeholder="목록에 보여질 공지사항 요약을 짧게 입력하세요"
                 className="bg-[#f4f3f1] border-[#e2e1df] rounded-[10px]"
               />
             </div>
