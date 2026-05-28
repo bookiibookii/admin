@@ -1,60 +1,65 @@
+import { useEffect } from "react"; // 💡 useEffect 추가
 import { Outlet, Link, useNavigate, useLocation } from "react-router";
-import { toast } from "sonner";
+import { toast } from "sonner"; // 💡 알림 띄우기용
 import {
   LayoutDashboard,
+  AlertCircle,
+  MessageSquare,
   Bell,
-  Users,
-  BarChart2,
-  ShieldCheck,
   LogOut,
 } from "lucide-react";
-
-const activeMenuItems = [
-  { path: "/", icon: LayoutDashboard, label: "대시보드" },
-  { path: "/notices", icon: Bell, label: "공지사항" },
-];
-
-const comingSoonItems = [
-  { icon: Users, label: "유저 통계" },
-  { icon: BarChart2, label: "그룹 통계" },
-  { icon: ShieldCheck, label: "관리자 관리" },
-];
 
 export default function AdminLayout() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // 💡 라우트 보호 로직: 관리자가 아니면 로그인 페이지로 쫓아냄
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+    const role = localStorage.getItem("userRole");
+
+    if (!token || role !== "ADMIN") {
+      toast.error("접근 권한이 없습니다. 관리자 계정으로 로그인해주세요.");
+      navigate("/");
+    }
+  }, [navigate]);
+
   const handleLogout = () => {
+    // 로그아웃 시 스토리지 비우기
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
     localStorage.removeItem("userRole");
+
     toast.success("로그아웃 되었습니다.");
-    navigate("/login");
+    navigate("/");
   };
 
+  const menuItems = [
+    { path: "/admin", icon: LayoutDashboard, label: "대시보드" },
+    { path: "/admin/reports", icon: AlertCircle, label: "신고 관리" },
+    { path: "/admin/inquiries", icon: MessageSquare, label: "문의 관리" },
+    { path: "/admin/notices", icon: Bell, label: "공지사항 관리" },
+  ];
+
   const isActive = (path: string) => {
-    if (path === "/") return location.pathname === "/" || location.pathname === "/dashboard";
+    if (path === "/admin") {
+      return location.pathname === "/admin";
+    }
     return location.pathname.startsWith(path);
   };
 
   return (
     <div className="min-h-screen bg-[#f6f6f6]">
+      {/* ... (이하 레이아웃 렌더링 코드는 기존에 수정한 부분과 완전 동일) ... */}
       <aside className="fixed top-0 left-0 z-50 flex h-screen w-64 flex-col border-r border-[#e2e1df] bg-white">
         <div className="p-6 border-b border-[#e2e1df]">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-[#ff7618] rounded-[8px] flex items-center justify-center">
-              <span className="text-white text-sm font-bold">B</span>
-            </div>
-            <div>
-              <h1 className="text-base font-bold text-[#242322]">BOOKIIBOOKII</h1>
-              <p className="text-xs text-[#858481]">관리자</p>
-            </div>
-          </div>
+          <h1 className="text-xl font-semibold text-[#242322]">BOOKIIBOOKII</h1>
+          <p className="text-sm text-[#858481] mt-1">관리자</p>
         </div>
 
         <nav className="flex-1 overflow-y-auto p-4">
-          <ul className="space-y-1">
-            {activeMenuItems.map((item) => (
+          <ul className="space-y-2">
+            {menuItems.map((item) => (
               <li key={item.path}>
                 <Link
                   to={item.path}
@@ -67,24 +72,6 @@ export default function AdminLayout() {
                   <item.icon className="w-5 h-5" />
                   <span className="font-medium">{item.label}</span>
                 </Link>
-              </li>
-            ))}
-
-            <li className="pt-4 pb-1">
-              <p className="text-xs font-semibold text-[#b0afad] uppercase px-4 tracking-wider">
-                준비 중
-              </p>
-            </li>
-
-            {comingSoonItems.map((item) => (
-              <li key={item.label}>
-                <div className="flex items-center gap-3 px-4 py-3 rounded-lg text-[#c0bfbd] cursor-not-allowed select-none">
-                  <item.icon className="w-5 h-5" />
-                  <span className="font-medium flex-1">{item.label}</span>
-                  <span className="text-[10px] bg-[#f4f3f1] text-[#b0afad] px-2 py-0.5 rounded-full font-semibold">
-                    Soon
-                  </span>
-                </div>
               </li>
             ))}
           </ul>

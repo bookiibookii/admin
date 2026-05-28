@@ -1,79 +1,86 @@
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
+import { fetchApi } from "../utils/api";
 import { GoogleLogin } from "@react-oauth/google";
-import api from "../../lib/api";
-
-async function checkAdminRole(accessToken: string): Promise<boolean> {
-  // TODO: GET /admin/me API가 구현되면 여기서 호출하여 관리자 권한을 서버에서 확인한다.
-  // 현재는 로그인 응답의 role 필드로 판단하므로 이 함수는 호출되지 않는다.
-  void accessToken;
-  return false;
-}
 
 export default function AdminLogin() {
   const navigate = useNavigate();
 
+  // 구글 로그인 성공 핸들러
   const handleGoogleSuccess = async (credentialResponse: any) => {
+    console.log("🟢 Google credentialResponse:", credentialResponse);
+
+    // 💡 credentialResponse.credential에 백엔드가 원하는 ID Token(JWT)이 들어있습니다.
     const idToken = credentialResponse.credential;
+    console.log("🟢 Extracted idToken:", idToken);
 
     try {
+      // 기존 권한 정보 초기화
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
       localStorage.removeItem("userRole");
 
-      const { data } = await api.post("/api/auth/login", {
-        socialType: "GOOGLE",
-        token: idToken,
+      console.log("🟡 Sending login request to backend...");
+
+      const response = await fetchApi("/api/auth/login", {
+        method: "POST",
+        body: JSON.stringify({
+          socialType: "GOOGLE",
+          token: idToken,
+        }),
       });
 
-      if (data.isSuccess) {
-        const { accessToken, refreshToken, role } = data.result;
+      console.log("🟡 Raw response object:", response);
 
-        if (role === "ADMIN") {
-          localStorage.setItem("accessToken", accessToken);
-          localStorage.setItem("refreshToken", refreshToken);
-          localStorage.setItem("userRole", role);
+      const data = await response.json();
+      console.log("🟡 Parsed response data:", data);
+
+      if (response.ok && data.isSuccess) {
+        console.log("🟢 Login API success");
+
+        // 관리자 권한 확인
+        if (data.result.role === "ADMIN") {
+          console.log("🟢 ADMIN confirmed:", data.result);
+
+          localStorage.setItem("accessToken", data.result.accessToken);
+          localStorage.setItem("refreshToken", data.result.refreshToken);
+          localStorage.setItem("userRole", data.result.role);
+
           toast.success("관리자 로그인에 성공했습니다.");
-          navigate("/dashboard");
+          navigate("/admin/notices");
         } else {
-          navigate("/unauthorized");
+          console.log("🔴 Not ADMIN:", data.result.role);
+          toast.error("관리자 계정만 접근할 수 있습니다.");
         }
       } else {
+        console.log("🔴 Login API failed:", data);
         toast.error(data.message || "로그인 처리에 실패했습니다.");
       }
-    } catch (error: any) {
-      const message = error.response?.data?.message;
-      toast.error(message || "서버와 통신 중 문제가 발생했습니다.");
+    } catch (error) {
+      console.error("🔴 로그인 API 통신 에러:", error);
+      toast.error("서버와 통신 중 문제가 발생했습니다.");
     }
+  };
+
+  const handleKakaoLogin = () => {
+    toast.info("카카오 로그인은 현재 준비 중입니다.");
   };
 
   return (
     <div className="min-h-screen bg-[#f6f6f6] flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="bg-white rounded-[20px] p-8 shadow-sm">
-          <div className="text-center mb-10">
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-[#ff7618] rounded-[20px] mb-4">
-              <span className="text-white text-2xl font-bold">B</span>
-            </div>
-            <h1 className="text-2xl font-bold text-[#242322]">BOOKIIBOOKII</h1>
-            <p className="text-[#858481] mt-1 text-sm">관리자 로그인</p>
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-[#242322] mb-2">
+              BOOKIIBOOKII
+            </h1>
+            <p className="text-[#858481]">관리자 로그인</p>
           </div>
 
-          <div className="space-y-3">
-            <div className="flex justify-center w-full overflow-hidden rounded-[10px]">
-              <GoogleLogin
-                onSuccess={handleGoogleSuccess}
-                onError={() => toast.error("구글 로그인에 실패했습니다.")}
-                theme="outline"
-                size="large"
-                shape="rectangular"
-                width="384"
-              />
-            </div>
-
+          <div className="space-y-4">
             <button
-              disabled
-              className="w-full bg-[#FEE500] text-[#000000]/40 py-4 rounded-[10px] font-medium flex items-center justify-center gap-3 cursor-not-allowed opacity-50"
+              onClick={handleKakaoLogin}
+              className="w-full bg-[#FEE500] text-[#000000] py-4 rounded-[10px] font-medium hover:bg-[#FDD835] transition-colors flex items-center justify-center gap-3"
             >
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                 <path
@@ -81,13 +88,26 @@ export default function AdminLogin() {
                   fill="currentColor"
                 />
               </svg>
-              카카오 로그인 (준비 중)
+              카카오 로그인
             </button>
+
+            <div className="flex justify-center w-full overflow-hidden rounded-[10px]">
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={() => {
+                  console.error("🔴 GoogleLogin onError triggered");
+                  toast.error("구글 로그인에 실패했습니다.");
+                }}
+                useOneTap
+                theme="outline"
+                size="large"
+                shape="rectangular"
+                width="384"
+              />
+            </div>
           </div>
         </div>
       </div>
     </div>
   );
 }
-
-void checkAdminRole;
