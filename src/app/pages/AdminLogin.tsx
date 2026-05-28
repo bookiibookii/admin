@@ -15,6 +15,7 @@ export default function AdminLogin() {
 
   const handleGoogleSuccess = async (credentialResponse: any) => {
     const idToken = credentialResponse.credential;
+    console.log("[Login] Google credential received, length:", idToken?.length);
 
     try {
       localStorage.removeItem("accessToken");
@@ -26,6 +27,8 @@ export default function AdminLogin() {
         token: idToken,
       });
 
+      console.log("[Login] API response:", data);
+
       if (data.isSuccess) {
         const { accessToken, refreshToken, role } = data.result;
 
@@ -36,14 +39,21 @@ export default function AdminLogin() {
           toast.success("관리자 로그인에 성공했습니다.");
           navigate("/dashboard");
         } else {
+          console.warn("[Login] Not ADMIN, role:", role);
           navigate("/unauthorized");
         }
       } else {
+        console.warn("[Login] isSuccess false:", data);
         toast.error(data.message || "로그인 처리에 실패했습니다.");
       }
     } catch (error: any) {
+      console.error("[Login] Error:", {
+        status: error.response?.status,
+        data: error.response?.data,
+        message: error.message,
+      });
       const message = error.response?.data?.message;
-      toast.error(message || "서버와 통신 중 문제가 발생했습니다.");
+      toast.error(`[${error.response?.status ?? "NET"}] ${message || "서버와 통신 중 문제가 발생했습니다."}`);
     }
   };
 
