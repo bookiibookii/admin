@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://bookii.gyeonseo.com/api/:path*"
+    }
+  ]
+}
