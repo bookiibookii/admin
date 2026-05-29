@@ -388,7 +388,7 @@ export default function UserStats() {
             <CartesianGrid strokeDasharray="3 3" stroke="#f0eeec" />
             <XAxis dataKey="label" tick={{ fontSize: 12, fill: "#858481" }} />
             <YAxis tick={{ fontSize: 12, fill: "#858481" }} />
-            <Tooltip contentStyle={{ borderRadius: 10, border: "1px solid #e2e1df", fontSize: 13 }} />
+            <Tooltip cursor={false} contentStyle={{ borderRadius: 10, border: "1px solid #e2e1df", fontSize: 13 }} />
             <Line type="monotone" dataKey="가입자수" stroke="#ff7618" strokeWidth={2} dot={{ fill: "#ff7618", r: 3 }} activeDot={{ r: 5 }} />
           </LineChart>
         </ResponsiveContainer>
@@ -404,7 +404,7 @@ export default function UserStats() {
               <Pie data={GENDER_DATA} cx="50%" cy="50%" innerRadius={55} outerRadius={85} dataKey="value" label={({ name, value }) => `${name} ${value}%`} labelLine={false}>
                 {GENDER_DATA.map((entry, i) => <Cell key={i} fill={entry.color} />)}
               </Pie>
-              <Tooltip formatter={(v) => `${v}%`} />
+              <Tooltip cursor={false} formatter={(v) => `${v}%`} />
             </PieChart>
           </ResponsiveContainer>
         </div>
@@ -416,7 +416,7 @@ export default function UserStats() {
               <CartesianGrid strokeDasharray="3 3" stroke="#f0eeec" />
               <XAxis dataKey="name" tick={{ fontSize: 12, fill: "#858481" }} />
               <YAxis tick={{ fontSize: 12, fill: "#858481" }} unit="%" />
-              <Tooltip formatter={(v) => `${v}%`} />
+              <Tooltip cursor={false} formatter={(v) => `${v}%`} />
               <Bar dataKey="value" fill="#ff7618" radius={[6, 6, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
@@ -429,7 +429,7 @@ export default function UserStats() {
               <CartesianGrid strokeDasharray="3 3" stroke="#f0eeec" />
               <XAxis type="number" tick={{ fontSize: 12, fill: "#858481" }} />
               <YAxis dataKey="name" type="category" tick={{ fontSize: 12, fill: "#858481" }} width={120} />
-              <Tooltip />
+              <Tooltip cursor={false} />
               <Bar dataKey="value" fill="#ff7618" radius={[0, 6, 6, 0]} />
             </BarChart>
           </ResponsiveContainer>
@@ -442,7 +442,7 @@ export default function UserStats() {
               <CartesianGrid strokeDasharray="3 3" stroke="#f0eeec" />
               <XAxis dataKey="name" tick={{ fontSize: 11, fill: "#858481" }} />
               <YAxis tick={{ fontSize: 12, fill: "#858481" }} unit="명" />
-              <Tooltip />
+              <Tooltip cursor={false} />
               <Bar dataKey="value" fill="#ffd5b5" radius={[6, 6, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>

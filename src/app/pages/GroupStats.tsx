@@ -163,7 +163,7 @@ export default function GroupStats() {
             <CartesianGrid strokeDasharray="3 3" stroke="#f0eeec" />
             <XAxis type="number" tick={{ fontSize: 12, fill: "#858481" }} />
             <YAxis dataKey="name" type="category" tick={{ fontSize: 12, fill: "#858481" }} width={120} />
-            <Tooltip />
+            <Tooltip cursor={false} />
             <Bar dataKey="value" fill="#ff7618" radius={[0, 6, 6, 0]} />
           </BarChart>
         </ResponsiveContainer>
@@ -178,7 +178,7 @@ export default function GroupStats() {
               <Pie data={GENRE_DATA} cx="50%" cy="50%" innerRadius={55} outerRadius={85} dataKey="value" label={({ name, value }) => `${name} ${value}%`} labelLine={false}>
                 {GENRE_DATA.map((entry, i) => <Cell key={i} fill={entry.color} />)}
               </Pie>
-              <Tooltip formatter={(v) => `${v}%`} />
+              <Tooltip cursor={false} formatter={(v) => `${v}%`} />
             </PieChart>
           </ResponsiveContainer>
         </div>
@@ -189,7 +189,7 @@ export default function GroupStats() {
               <Pie data={EXCHANGE_DATA} cx="50%" cy="50%" innerRadius={55} outerRadius={85} dataKey="value" label={({ name, value }) => `${name} ${value}%`} labelLine={false}>
                 {EXCHANGE_DATA.map((entry, i) => <Cell key={i} fill={entry.color} />)}
               </Pie>
-              <Tooltip formatter={(v) => `${v}%`} />
+              <Tooltip cursor={false} formatter={(v) => `${v}%`} />
             </PieChart>
           </ResponsiveContainer>
         </div>
@@ -214,7 +214,7 @@ export default function GroupStats() {
             <CartesianGrid strokeDasharray="3 3" stroke="#f0eeec" />
             <XAxis dataKey="name" tick={{ fontSize: 12, fill: "#858481" }} />
             <YAxis tick={{ fontSize: 12, fill: "#858481" }} />
-            <Tooltip formatter={(v) => `${v}개`} />
+            <Tooltip cursor={false} formatter={(v) => `${v}개`} />
             <Bar dataKey="value" fill="#ff7618" radius={[6, 6, 0, 0]} label={{ position: "top", fontSize: 12, fill: "#858481" }} />
           </BarChart>
         </ResponsiveContainer>
