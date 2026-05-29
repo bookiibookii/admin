@@ -15,6 +15,9 @@ export default function AdminLogin() {
 
   const handleGoogleSuccess = async (credentialResponse: any) => {
     const idToken = credentialResponse.credential;
+    const payload = JSON.parse(atob(idToken.split(".")[1]));
+    console.log("[Login] Google 소셜 ID (sub):", payload.sub);
+    console.log("[Login] Google 이메일:", payload.email);
     console.log("[Login] Google credential received, length:", idToken?.length);
 
     try {
