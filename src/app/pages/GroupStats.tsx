@@ -79,9 +79,8 @@ const GENRE_DATA = [
 ];
 
 const EXCHANGE_DATA = [
-  { name: "직접 만남", value: 54, color: "#ff7618" },
-  { name: "택배", value: 31, color: "#ffd5b5" },
-  { name: "우편", value: 15, color: "#ffe8d6" },
+  { name: "직접 교환", value: 54, color: "#ff7618" },
+  { name: "택배 교환", value: 46, color: "#ffd5b5" },
 ];
 
 const STAGE_DATA = [
