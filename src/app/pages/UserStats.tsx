@@ -349,14 +349,14 @@ export default function UserStats() {
   const crossData = crossKey ? CROSS_GROUP_DATA[crossKey as CrossGroup] : null;
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-[#242322]">유저 통계</h1>
         <p className="text-[#858481] mt-1">가입자 현황과 온보딩 응답을 분석합니다</p>
       </div>
 
       {/* 요약 카드 */}
-      <div className="grid grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
         {SUMMARY_CARDS.map((card) => (
           <div key={card.label} className="bg-white rounded-[20px] border border-[#e2e1df] p-6">
             <p className="text-sm text-[#858481]">{card.label}</p>
@@ -396,7 +396,7 @@ export default function UserStats() {
 
       {/* 섹션 2: 온보딩 결과 통계 */}
       <h2 className="text-lg font-bold text-[#242322] mb-4">온보딩 결과 통계</h2>
-      <div className="grid grid-cols-2 gap-4 mb-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-8">
         <div className="bg-white rounded-[20px] border border-[#e2e1df] p-6">
           <h3 className="text-base font-semibold text-[#242322] mb-4">성별 분포</h3>
           <ResponsiveContainer width="100%" height={220}>
@@ -549,7 +549,7 @@ export default function UserStats() {
                 const topBook = crossData.topBooks[0];
                 const topStyle = crossData.readingStyles[0];
                 return (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                     <div className="bg-[#fff8f4] border border-[#ffdcc3] rounded-[16px] p-5">
                       <p className="text-xs font-semibold text-[#ff7618] mb-3 uppercase tracking-wide">인생 책</p>
                       <p className="text-[#242322] font-medium leading-relaxed text-base">

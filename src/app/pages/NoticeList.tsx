@@ -122,7 +122,7 @@ export default function NoticeList() {
   };
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       <div className="mb-8 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-[#242322]">공지사항 관리</h1>

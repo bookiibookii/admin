@@ -73,7 +73,7 @@ export default function Dashboard() {
   const groupStats = DUMMY_GROUP_STATS;
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-[#242322]">대시보드</h1>
         <p className="text-[#858481] mt-1">

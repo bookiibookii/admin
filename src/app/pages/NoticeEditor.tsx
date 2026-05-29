@@ -115,7 +115,7 @@ export default function NoticeEditor() {
   const isUpdated = detail?.updatedAt && detail.updatedAt !== detail.createdAt;
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       <div className="mb-6">
         <button
           onClick={() => navigate(isEdit ? `/notices/${id}` : "/notices")}

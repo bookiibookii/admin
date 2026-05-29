@@ -128,14 +128,14 @@ export default function GroupStats() {
   };
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-[#242322]">그룹 통계</h1>
         <p className="text-[#858481] mt-1">그룹 현황과 콘텐츠 트렌드를 분석합니다</p>
       </div>
 
       {/* 요약 카드 */}
-      <div className="grid grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
         {SUMMARY_CARDS.map((card) => (
           <div key={card.label} className="bg-white rounded-[20px] border border-[#e2e1df] p-6">
             <p className="text-sm text-[#858481]">{card.label}</p>
@@ -170,7 +170,7 @@ export default function GroupStats() {
       </div>
 
       {/* 섹션 2, 3: 장르 + 교환 방식 */}
-      <div className="grid grid-cols-2 gap-4 mb-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-8">
         <div className="bg-white rounded-[20px] border border-[#e2e1df] p-6">
           <h2 className="text-lg font-bold text-[#242322] mb-4">장르 분포</h2>
           <ResponsiveContainer width="100%" height={240}>

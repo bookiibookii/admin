@@ -26,7 +26,7 @@ export default function GroupDetail() {
 
   if (!group) {
     return (
-      <div className="p-8">
+      <div className="p-4 md:p-8">
         <button onClick={() => navigate("/group-stats")} className="flex items-center gap-2 text-[#5e5d5b] hover:text-[#242322] mb-4">
           <ArrowLeft className="w-4 h-4" />목록으로
         </button>
@@ -47,7 +47,7 @@ export default function GroupDetail() {
   };
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       <div className="mb-6">
         <button
           onClick={() => navigate("/group-stats")}
@@ -111,7 +111,7 @@ export default function GroupDetail() {
         {/* 그룹 정보 */}
         <div className="bg-white rounded-[20px] border border-[#e2e1df] p-6">
           <h2 className="text-base font-bold text-[#242322] mb-4">그룹 정보</h2>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <InfoRow label="현재 단계">
               <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${STAGE_BADGE[group.stage]}`}>
                 {group.stage}

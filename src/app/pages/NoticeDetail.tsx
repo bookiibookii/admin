@@ -117,7 +117,7 @@ export default function NoticeDetail() {
   if (!notice) return null;
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       <div className="mb-6">
         <button
           onClick={() => navigate("/notices")}

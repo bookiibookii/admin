@@ -16,7 +16,7 @@ const DUMMY_ADMINS: Admin[] = [
 
 export default function AdminManagement() {
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-[#242322]">관리자</h1>
         <p className="text-[#858481] mt-1">
