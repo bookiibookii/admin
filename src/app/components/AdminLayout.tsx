@@ -12,12 +12,9 @@ import {
 const activeMenuItems = [
   { path: "/", icon: LayoutDashboard, label: "대시보드" },
   { path: "/notices", icon: Bell, label: "공지사항" },
-];
-
-const comingSoonItems = [
-  { icon: Users, label: "유저 통계" },
-  { icon: BarChart2, label: "그룹 통계" },
-  { icon: ShieldCheck, label: "관리자 관리" },
+  { path: "/user-stats", icon: Users, label: "유저 통계" },
+  { path: "/group-stats", icon: BarChart2, label: "그룹 통계" },
+  { path: "/admins", icon: ShieldCheck, label: "관리자" },
 ];
 
 export default function AdminLayout() {
@@ -67,24 +64,6 @@ export default function AdminLayout() {
                   <item.icon className="w-5 h-5" />
                   <span className="font-medium">{item.label}</span>
                 </Link>
-              </li>
-            ))}
-
-            <li className="pt-4 pb-1">
-              <p className="text-xs font-semibold text-[#b0afad] uppercase px-4 tracking-wider">
-                준비 중
-              </p>
-            </li>
-
-            {comingSoonItems.map((item) => (
-              <li key={item.label}>
-                <div className="flex items-center gap-3 px-4 py-3 rounded-lg text-[#c0bfbd] cursor-not-allowed select-none">
-                  <item.icon className="w-5 h-5" />
-                  <span className="font-medium flex-1">{item.label}</span>
-                  <span className="text-[10px] bg-[#f4f3f1] text-[#b0afad] px-2 py-0.5 rounded-full font-semibold">
-                    Soon
-                  </span>
-                </div>
               </li>
             ))}
           </ul>
