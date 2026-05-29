@@ -5,9 +5,9 @@ import {
 } from "recharts";
 
 type PeriodTab = "일간" | "주간" | "월간" | "연간";
-type CrossGroup =
-  | "여성" | "남성" | "선택 안함"
-  | "10대" | "20대" | "30대" | "40대" | "50대 이상";
+type GenderOption = "여성" | "남성" | "선택 안함";
+type AgeOption = "10대" | "20대" | "30대" | "40대" | "50대 이상";
+type CrossGroup = GenderOption | AgeOption;
 
 function generateDailyData() {
   return Array.from({ length: 14 }, (_, i) => {
@@ -74,12 +74,7 @@ const SUMMARY_CARDS = [
   { label: "이번 달 가입", value: "312명" },
 ];
 
-interface CrossGroupData {
-  topBooks: { name: string; value: number }[];
-  readingStyles: { name: string; value: number }[];
-}
-
-const CROSS_GROUP_DATA: Record<CrossGroup, CrossGroupData> = {
+const CROSS_GROUP_DATA: Record<CrossGroup, { topBooks: { name: string; value: number }[]; readingStyles: { name: string; value: number }[] }> = {
   "여성": {
     topBooks: [
       { name: "채식주의자", value: 52 },
@@ -210,15 +205,194 @@ const CROSS_GROUP_DATA: Record<CrossGroup, CrossGroupData> = {
   },
 };
 
-const GENDER_OPTIONS: CrossGroup[] = ["여성", "남성", "선택 안함"];
-const AGE_OPTIONS: CrossGroup[] = ["10대", "20대", "30대", "40대", "50대 이상"];
+const GENDER_OPTIONS: GenderOption[] = ["여성", "남성", "선택 안함"];
+const AGE_OPTIONS: AgeOption[] = ["10대", "20대", "30대", "40대", "50대 이상"];
+
+interface CrossGroupData {
+  topBooks: { name: string; value: number }[];
+  readingStyles: { name: string; value: number }[];
+}
+
+const CROSS_COMBINED_DATA: Record<GenderOption, Record<AgeOption, CrossGroupData>> = {
+  "여성": {
+    "10대": {
+      topBooks: [
+        { name: "해리포터와 마법사의 돌", value: 19 }, { name: "아몬드", value: 14 },
+        { name: "어린왕자", value: 11 }, { name: "채식주의자", value: 8 }, { name: "데미안", value: 6 },
+      ],
+      readingStyles: [
+        { name: "사진으로 기록", value: 18 }, { name: "포스트잇 활용", value: 14 },
+        { name: "잘 모름", value: 11 }, { name: "상관 없음", value: 9 }, { name: "직접 메모", value: 5 },
+      ],
+    },
+    "20대": {
+      topBooks: [
+        { name: "채식주의자", value: 68 }, { name: "달러구트 꿈 백화점", value: 54 },
+        { name: "82년생 김지영", value: 47 }, { name: "아몬드", value: 39 }, { name: "연을 쫓는 아이", value: 31 },
+      ],
+      readingStyles: [
+        { name: "포스트잇 활용", value: 112 }, { name: "직접 메모", value: 78 },
+        { name: "상관 없음", value: 61 }, { name: "사진으로 기록", value: 48 }, { name: "잘 모름", value: 22 },
+      ],
+    },
+    "30대": {
+      topBooks: [
+        { name: "채식주의자", value: 29 }, { name: "연을 쫓는 아이", value: 24 },
+        { name: "달러구트 꿈 백화점", value: 21 }, { name: "82년생 김지영", value: 18 }, { name: "아몬드", value: 14 },
+      ],
+      readingStyles: [
+        { name: "직접 메모", value: 48 }, { name: "포스트잇 활용", value: 41 },
+        { name: "상관 없음", value: 27 }, { name: "사진으로 기록", value: 19 }, { name: "잘 모름", value: 8 },
+      ],
+    },
+    "40대": {
+      topBooks: [
+        { name: "달러구트 꿈 백화점", value: 14 }, { name: "채식주의자", value: 11 },
+        { name: "82년생 김지영", value: 9 }, { name: "연을 쫓는 아이", value: 7 }, { name: "노르웨이의 숲", value: 5 },
+      ],
+      readingStyles: [
+        { name: "직접 메모", value: 22 }, { name: "포스트잇 활용", value: 15 },
+        { name: "상관 없음", value: 13 }, { name: "사진으로 기록", value: 8 }, { name: "잘 모름", value: 4 },
+      ],
+    },
+    "50대 이상": {
+      topBooks: [
+        { name: "노르웨이의 숲", value: 8 }, { name: "달러구트 꿈 백화점", value: 6 },
+        { name: "채식주의자", value: 5 }, { name: "어린왕자", value: 4 }, { name: "사피엔스", value: 3 },
+      ],
+      readingStyles: [
+        { name: "직접 메모", value: 14 }, { name: "상관 없음", value: 10 },
+        { name: "포스트잇 활용", value: 7 }, { name: "사진으로 기록", value: 4 }, { name: "잘 모름", value: 3 },
+      ],
+    },
+  },
+  "남성": {
+    "10대": {
+      topBooks: [
+        { name: "해리포터와 마법사의 돌", value: 11 }, { name: "데미안", value: 7 },
+        { name: "사피엔스", value: 5 }, { name: "아몬드", value: 4 }, { name: "어린왕자", value: 3 },
+      ],
+      readingStyles: [
+        { name: "잘 모름", value: 9 }, { name: "상관 없음", value: 7 },
+        { name: "사진으로 기록", value: 6 }, { name: "직접 메모", value: 3 }, { name: "포스트잇 활용", value: 2 },
+      ],
+    },
+    "20대": {
+      topBooks: [
+        { name: "채식주의자", value: 17 }, { name: "사피엔스", value: 14 },
+        { name: "해리포터와 마법사의 돌", value: 11 }, { name: "아몬드", value: 9 }, { name: "데미안", value: 8 },
+      ],
+      readingStyles: [
+        { name: "상관 없음", value: 34 }, { name: "직접 메모", value: 27 },
+        { name: "포스트잇 활용", value: 19 }, { name: "사진으로 기록", value: 11 }, { name: "잘 모름", value: 8 },
+      ],
+    },
+    "30대": {
+      topBooks: [
+        { name: "사피엔스", value: 13 }, { name: "노르웨이의 숲", value: 9 },
+        { name: "채식주의자", value: 8 }, { name: "총균쇠", value: 7 }, { name: "데미안", value: 5 },
+      ],
+      readingStyles: [
+        { name: "직접 메모", value: 21 }, { name: "상관 없음", value: 16 },
+        { name: "포스트잇 활용", value: 11 }, { name: "사진으로 기록", value: 7 }, { name: "잘 모름", value: 3 },
+      ],
+    },
+    "40대": {
+      topBooks: [
+        { name: "사피엔스", value: 8 }, { name: "노르웨이의 숲", value: 6 },
+        { name: "총균쇠", value: 5 }, { name: "채식주의자", value: 4 }, { name: "데미안", value: 3 },
+      ],
+      readingStyles: [
+        { name: "직접 메모", value: 12 }, { name: "상관 없음", value: 9 },
+        { name: "포스트잇 활용", value: 6 }, { name: "사진으로 기록", value: 3 }, { name: "잘 모름", value: 2 },
+      ],
+    },
+    "50대 이상": {
+      topBooks: [
+        { name: "사피엔스", value: 6 }, { name: "노르웨이의 숲", value: 4 },
+        { name: "총균쇠", value: 4 }, { name: "데미안", value: 3 }, { name: "채식주의자", value: 2 },
+      ],
+      readingStyles: [
+        { name: "직접 메모", value: 9 }, { name: "상관 없음", value: 7 },
+        { name: "포스트잇 활용", value: 4 }, { name: "잘 모름", value: 2 }, { name: "사진으로 기록", value: 2 },
+      ],
+    },
+  },
+  "선택 안함": {
+    "10대": {
+      topBooks: [
+        { name: "어린왕자", value: 4 }, { name: "해리포터와 마법사의 돌", value: 3 },
+        { name: "아몬드", value: 2 }, { name: "데미안", value: 2 }, { name: "채식주의자", value: 1 },
+      ],
+      readingStyles: [
+        { name: "잘 모름", value: 5 }, { name: "상관 없음", value: 4 },
+        { name: "사진으로 기록", value: 3 }, { name: "직접 메모", value: 2 }, { name: "포스트잇 활용", value: 1 },
+      ],
+    },
+    "20대": {
+      topBooks: [
+        { name: "아몬드", value: 5 }, { name: "채식주의자", value: 4 },
+        { name: "달러구트 꿈 백화점", value: 3 }, { name: "어린왕자", value: 2 }, { name: "데미안", value: 2 },
+      ],
+      readingStyles: [
+        { name: "잘 모름", value: 7 }, { name: "직접 메모", value: 6 },
+        { name: "상관 없음", value: 5 }, { name: "포스트잇 활용", value: 4 }, { name: "사진으로 기록", value: 3 },
+      ],
+    },
+    "30대": {
+      topBooks: [
+        { name: "채식주의자", value: 3 }, { name: "노르웨이의 숲", value: 3 },
+        { name: "달러구트 꿈 백화점", value: 2 }, { name: "아몬드", value: 2 }, { name: "어린왕자", value: 1 },
+      ],
+      readingStyles: [
+        { name: "직접 메모", value: 5 }, { name: "상관 없음", value: 4 },
+        { name: "잘 모름", value: 3 }, { name: "포스트잇 활용", value: 2 }, { name: "사진으로 기록", value: 2 },
+      ],
+    },
+    "40대": {
+      topBooks: [
+        { name: "노르웨이의 숲", value: 3 }, { name: "사피엔스", value: 2 },
+        { name: "채식주의자", value: 2 }, { name: "달러구트 꿈 백화점", value: 1 }, { name: "데미안", value: 1 },
+      ],
+      readingStyles: [
+        { name: "직접 메모", value: 4 }, { name: "상관 없음", value: 3 },
+        { name: "잘 모름", value: 2 }, { name: "포스트잇 활용", value: 2 }, { name: "사진으로 기록", value: 1 },
+      ],
+    },
+    "50대 이상": {
+      topBooks: [
+        { name: "노르웨이의 숲", value: 2 }, { name: "사피엔스", value: 2 },
+        { name: "달러구트 꿈 백화점", value: 1 }, { name: "어린왕자", value: 1 }, { name: "채식주의자", value: 1 },
+      ],
+      readingStyles: [
+        { name: "직접 메모", value: 3 }, { name: "상관 없음", value: 2 },
+        { name: "잘 모름", value: 2 }, { name: "포스트잇 활용", value: 1 }, { name: "사진으로 기록", value: 1 },
+      ],
+    },
+  },
+};
 
 export default function UserStats() {
   const [period, setPeriod] = useState<PeriodTab>("일간");
-  const [crossGroup, setCrossGroup] = useState<CrossGroup>("여성");
+  const [selectedGender, setSelectedGender] = useState<GenderOption | null>(null);
+  const [selectedAge, setSelectedAge] = useState<AgeOption | null>(null);
 
   const chartData = PERIOD_DATA[period];
-  const crossData = CROSS_GROUP_DATA[crossGroup];
+
+  // 선택 조합에 따라 데이터 결정
+  const crossData: CrossGroupData | null = (() => {
+    if (selectedGender && selectedAge) return CROSS_COMBINED_DATA[selectedGender][selectedAge];
+    if (selectedGender) return CROSS_GROUP_DATA[selectedGender];
+    if (selectedAge) return CROSS_GROUP_DATA[selectedAge];
+    return null;
+  })();
+
+  const subjectLabel = (() => {
+    if (selectedGender && selectedAge) return `${selectedAge} ${selectedGender} 유저`;
+    if (selectedGender) return `${selectedGender} 유저`;
+    if (selectedAge) return `${selectedAge}`;
+    return null;
+  })();
 
   return (
     <div className="p-8">
@@ -325,7 +499,7 @@ export default function UserStats() {
       <div className="bg-white rounded-[20px] border border-[#e2e1df] p-6">
         <div className="mb-6">
           <h2 className="text-lg font-bold text-[#242322] mb-1">교차 통계</h2>
-          <p className="text-sm text-[#858481]">성별 또는 연령대를 선택해 인생 책과 독서 스타일을 확인하세요</p>
+          <p className="text-sm text-[#858481]">성별·연령대를 각각 0~1개 선택해 조합된 통계를 확인하세요</p>
         </div>
 
         {/* 칩 선택 영역 */}
@@ -336,9 +510,9 @@ export default function UserStats() {
               {GENDER_OPTIONS.map((g) => (
                 <button
                   key={g}
-                  onClick={() => setCrossGroup(g)}
+                  onClick={() => setSelectedGender(selectedGender === g ? null : g)}
                   className={`px-4 py-2 rounded-full text-sm font-medium border transition-all ${
-                    crossGroup === g
+                    selectedGender === g
                       ? "bg-[#ff7618] text-white border-[#ff7618] shadow-sm"
                       : "bg-white text-[#5e5d5b] border-[#e2e1df] hover:border-[#ff7618] hover:text-[#ff7618]"
                   }`}
@@ -357,9 +531,9 @@ export default function UserStats() {
               {AGE_OPTIONS.map((a) => (
                 <button
                   key={a}
-                  onClick={() => setCrossGroup(a)}
+                  onClick={() => setSelectedAge(selectedAge === a ? null : a)}
                   className={`px-4 py-2 rounded-full text-sm font-medium border transition-all ${
-                    crossGroup === a
+                    selectedAge === a
                       ? "bg-[#ff7618] text-white border-[#ff7618] shadow-sm"
                       : "bg-white text-[#5e5d5b] border-[#e2e1df] hover:border-[#ff7618] hover:text-[#ff7618]"
                   }`}
@@ -372,72 +546,75 @@ export default function UserStats() {
         </div>
 
         {/* 인사이트 카드 */}
-        {(() => {
-          const data = CROSS_GROUP_DATA[crossGroup];
-          const isGender = GENDER_OPTIONS.includes(crossGroup);
-          const subjectLabel = isGender ? `${crossGroup} 유저` : crossGroup;
-          const topBook = data.topBooks[0];
-          const topStyle = data.readingStyles[0];
-          return (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* 인생 책 카드 */}
-              <div className="bg-[#fff8f4] border border-[#ffdcc3] rounded-[16px] p-5">
-                <p className="text-xs font-semibold text-[#ff7618] mb-3 uppercase tracking-wide">인생 책</p>
-                <p className="text-[#242322] font-medium leading-relaxed text-base">
-                  {subjectLabel}의 경우, 인생 책으로{" "}
-                  <span className="font-bold text-[#ff7618]">'{topBook.name}'</span>을(를) 가장 많이 골랐어요.
-                </p>
-                <p className="text-sm text-[#858481] mt-3">
-                  선택 인원 <span className="font-semibold text-[#ff7618]">{topBook.value}명</span>
-                </p>
-                <div className="mt-4 space-y-2">
-                  {data.topBooks.map((book, i) => (
-                    <div key={book.name} className="flex items-center gap-3">
-                      <span className={`text-xs font-bold w-5 text-center shrink-0 ${i === 0 ? "text-[#ff7618]" : "text-[#b0afad]"}`}>
-                        {i + 1}
-                      </span>
-                      <div className="flex-1 flex items-center justify-between gap-2 min-w-0">
-                        <span className="text-sm text-[#242322] truncate">{book.name}</span>
-                        <span className="text-xs text-[#858481] shrink-0">{book.value}명</span>
+        {!crossData ? (
+          <div className="flex items-center justify-center py-12 text-[#b0afad] text-sm">
+            성별 또는 연령대를 선택하면 통계가 표시됩니다
+          </div>
+        ) : (
+          (() => {
+            const topBook = crossData.topBooks[0];
+            const topStyle = crossData.readingStyles[0];
+            return (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* 인생 책 카드 */}
+                <div className="bg-[#fff8f4] border border-[#ffdcc3] rounded-[16px] p-5">
+                  <p className="text-xs font-semibold text-[#ff7618] mb-3 uppercase tracking-wide">인생 책</p>
+                  <p className="text-[#242322] font-medium leading-relaxed text-base">
+                    {subjectLabel}의 경우, 인생 책으로{" "}
+                    <span className="font-bold text-[#ff7618]">'{topBook.name}'</span>을(를) 가장 많이 골랐어요.
+                  </p>
+                  <p className="text-sm text-[#858481] mt-3">
+                    선택 인원 <span className="font-semibold text-[#ff7618]">{topBook.value}명</span>
+                  </p>
+                  <div className="mt-4 space-y-2">
+                    {crossData.topBooks.map((book, i) => (
+                      <div key={book.name} className="flex items-center gap-3">
+                        <span className={`text-xs font-bold w-5 text-center shrink-0 ${i === 0 ? "text-[#ff7618]" : "text-[#b0afad]"}`}>
+                          {i + 1}
+                        </span>
+                        <div className="flex-1 flex items-center justify-between gap-2 min-w-0">
+                          <span className="text-sm text-[#242322] truncate">{book.name}</span>
+                          <span className="text-xs text-[#858481] shrink-0">{book.value}명</span>
+                        </div>
+                        <div className="w-20 h-1.5 bg-[#f4f3f1] rounded-full overflow-hidden shrink-0">
+                          <div className="h-full bg-[#ff7618] rounded-full" style={{ width: `${(book.value / crossData.topBooks[0].value) * 100}%` }} />
+                        </div>
                       </div>
-                      <div className="w-20 h-1.5 bg-[#f4f3f1] rounded-full overflow-hidden shrink-0">
-                        <div className="h-full bg-[#ff7618] rounded-full" style={{ width: `${(book.value / data.topBooks[0].value) * 100}%` }} />
-                      </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
 
-              {/* 독서 스타일 카드 */}
-              <div className="bg-[#f4f3f1] border border-[#e2e1df] rounded-[16px] p-5">
-                <p className="text-xs font-semibold text-[#858481] mb-3 uppercase tracking-wide">독서 스타일</p>
-                <p className="text-[#242322] font-medium leading-relaxed text-base">
-                  {subjectLabel}의 경우, 독서 스타일로{" "}
-                  <span className="font-bold text-[#242322]">'{topStyle.name}'</span>을(를) 가장 많이 선택했어요.
-                </p>
-                <p className="text-sm text-[#858481] mt-3">
-                  선택 인원 <span className="font-semibold text-[#242322]">{topStyle.value}명</span>
-                </p>
-                <div className="mt-4 space-y-2">
-                  {data.readingStyles.map((style, i) => (
-                    <div key={style.name} className="flex items-center gap-3">
-                      <span className={`text-xs font-bold w-5 text-center shrink-0 ${i === 0 ? "text-[#242322]" : "text-[#b0afad]"}`}>
-                        {i + 1}
-                      </span>
-                      <div className="flex-1 flex items-center justify-between gap-2 min-w-0">
-                        <span className="text-sm text-[#242322] truncate">{style.name}</span>
-                        <span className="text-xs text-[#858481] shrink-0">{style.value}명</span>
+                {/* 독서 스타일 카드 */}
+                <div className="bg-[#f4f3f1] border border-[#e2e1df] rounded-[16px] p-5">
+                  <p className="text-xs font-semibold text-[#858481] mb-3 uppercase tracking-wide">독서 스타일</p>
+                  <p className="text-[#242322] font-medium leading-relaxed text-base">
+                    {subjectLabel}의 경우, 독서 스타일로{" "}
+                    <span className="font-bold text-[#242322]">'{topStyle.name}'</span>을(를) 가장 많이 선택했어요.
+                  </p>
+                  <p className="text-sm text-[#858481] mt-3">
+                    선택 인원 <span className="font-semibold text-[#242322]">{topStyle.value}명</span>
+                  </p>
+                  <div className="mt-4 space-y-2">
+                    {crossData.readingStyles.map((style, i) => (
+                      <div key={style.name} className="flex items-center gap-3">
+                        <span className={`text-xs font-bold w-5 text-center shrink-0 ${i === 0 ? "text-[#242322]" : "text-[#b0afad]"}`}>
+                          {i + 1}
+                        </span>
+                        <div className="flex-1 flex items-center justify-between gap-2 min-w-0">
+                          <span className="text-sm text-[#242322] truncate">{style.name}</span>
+                          <span className="text-xs text-[#858481] shrink-0">{style.value}명</span>
+                        </div>
+                        <div className="w-20 h-1.5 bg-[#e2e1df] rounded-full overflow-hidden shrink-0">
+                          <div className="h-full bg-[#858481] rounded-full" style={{ width: `${(style.value / crossData.readingStyles[0].value) * 100}%` }} />
+                        </div>
                       </div>
-                      <div className="w-20 h-1.5 bg-[#e2e1df] rounded-full overflow-hidden shrink-0">
-                        <div className="h-full bg-[#858481] rounded-full" style={{ width: `${(style.value / data.readingStyles[0].value) * 100}%` }} />
-                      </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
-          );
-        })()}
+            );
+          })()
+        )}
       </div>
     </div>
   );
