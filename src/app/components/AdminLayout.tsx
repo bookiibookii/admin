@@ -1,3 +1,4 @@
+// 로고 이미지: public/logo.png 경로에 실제 파일 배치 필요
 import { Outlet, Link, useNavigate, useLocation } from "react-router";
 import { toast } from "sonner";
 import {
@@ -20,11 +21,13 @@ const activeMenuItems = [
 export default function AdminLayout() {
   const navigate = useNavigate();
   const location = useLocation();
+  const adminNickname = localStorage.getItem("adminNickname") || "관리자";
 
   const handleLogout = () => {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
     localStorage.removeItem("userRole");
+    localStorage.removeItem("adminNickname");
     toast.success("로그아웃 되었습니다.");
     navigate("/login");
   };
@@ -39,12 +42,24 @@ export default function AdminLayout() {
       <aside className="fixed top-0 left-0 z-50 flex h-screen w-64 flex-col border-r border-[#e2e1df] bg-white">
         <div className="p-6 border-b border-[#e2e1df]">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-[#ff7618] rounded-[8px] flex items-center justify-center">
+            <img
+              src="/logo.png"
+              alt="BOOKIIBOOKII"
+              className="w-9 h-9 object-contain rounded-[8px]"
+              onError={(e) => {
+                e.currentTarget.style.display = "none";
+                (e.currentTarget.nextElementSibling as HTMLElement | null)?.removeAttribute("style");
+              }}
+            />
+            <div
+              className="w-9 h-9 bg-[#ff7618] rounded-[8px] flex items-center justify-center"
+              style={{ display: "none" }}
+            >
               <span className="text-white text-sm font-bold">B</span>
             </div>
             <div>
               <h1 className="text-base font-bold text-[#242322]">BOOKIIBOOKII</h1>
-              <p className="text-xs text-[#858481]">관리자</p>
+              <p className="text-xs text-[#858481]">{adminNickname}</p>
             </div>
           </div>
         </div>

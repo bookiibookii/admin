@@ -39,6 +39,11 @@ export default function AdminLogin() {
           localStorage.setItem("accessToken", accessToken);
           localStorage.setItem("refreshToken", refreshToken);
           localStorage.setItem("userRole", role);
+
+          // 닉네임 저장: 백엔드 응답 우선, 없으면 Google 이름 사용
+          const nickname = data.result.nickname || payload.name || "관리자";
+          localStorage.setItem("adminNickname", nickname);
+
           toast.success("관리자 로그인에 성공했습니다.");
           navigate("/dashboard");
         } else {

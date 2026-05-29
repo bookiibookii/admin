@@ -1,11 +1,12 @@
 import { useState } from "react";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  BarChart, Bar, PieChart, Pie, Cell, Legend,
+  BarChart, Bar, PieChart, Pie, Cell,
 } from "recharts";
 
 type PeriodTab = "일간" | "주간" | "월간" | "연간";
-type CrossTab = "성별 × 인생 책" | "연령대 × 인생 책" | "연령대 × 독서 스타일";
+type CrossBasis = "gender" | "ageGroup";
+type CrossItem = "lifeBook" | "readingStyle";
 
 function generateDailyData() {
   return Array.from({ length: 14 }, (_, i) => {
@@ -42,10 +43,17 @@ const YEARLY_DATA = [
   { label: "2026", 가입자수: 987 },
 ];
 
+const PERIOD_DATA: Record<PeriodTab, typeof DAILY_DATA> = {
+  일간: DAILY_DATA,
+  주간: WEEKLY_DATA,
+  월간: MONTHLY_DATA,
+  연간: YEARLY_DATA,
+};
+
 const GENDER_DATA = [
-  { name: "여성", value: 72, color: "#ff7618" },
-  { name: "남성", value: 24, color: "#ffd5b5" },
-  { name: "기타", value: 4, color: "#ffe8d6" },
+  { name: "여성", value: 71, color: "#ff7618" },
+  { name: "남성", value: 23, color: "#ffd5b5" },
+  { name: "선택 안함", value: 6, color: "#ffe8d6" },
 ];
 
 const AGE_DATA = [
@@ -64,45 +72,12 @@ const BOOK_TOP5 = [
 ];
 
 const READING_STYLE = [
-  { name: "빠르게 읽기", value: 31 },
-  { name: "천천히 음미", value: 45 },
-  { name: "필사하며 읽기", value: 12 },
-  { name: "밑줄 치며 읽기", value: 12 },
+  { name: "직접 메모", value: 28 },
+  { name: "포스트잇 활용", value: 23 },
+  { name: "사진으로 기록", value: 19 },
+  { name: "상관 없음", value: 22 },
+  { name: "잘 모름", value: 8 },
 ];
-
-const CROSS_DATA: Record<CrossTab, { groups: string[]; items: { name: string; [key: string]: number | string }[] }> = {
-  "성별 × 인생 책": {
-    groups: ["여성", "남성"],
-    items: [
-      { name: "채식주의자", 여성: 65, 남성: 24 },
-      { name: "달러구트", 여성: 52, 남성: 24 },
-      { name: "아몬드", 여성: 41, 남성: 24 },
-      { name: "해리포터", 여성: 28, 남성: 26 },
-      { name: "연을 쫓는 아이", 여성: 30, 남성: 18 },
-    ],
-  },
-  "연령대 × 인생 책": {
-    groups: ["10대", "20대", "30대", "40대+"],
-    items: [
-      { name: "채식주의자", "10대": 5, "20대": 55, "30대": 20, "40대+": 9 },
-      { name: "달러구트", "10대": 8, "20대": 48, "30대": 15, "40대+": 5 },
-      { name: "아몬드", "10대": 12, "20대": 38, "30대": 10, "40대+": 5 },
-      { name: "해리포터", "10대": 20, "20대": 22, "30대": 9, "40대+": 3 },
-      { name: "연을 쫓는 아이", "10대": 6, "20대": 28, "30대": 10, "40대+": 4 },
-    ],
-  },
-  "연령대 × 독서 스타일": {
-    groups: ["10대", "20대", "30대", "40대+"],
-    items: [
-      { name: "빠르게 읽기", "10대": 15, "20대": 38, "30대": 28, "40대+": 19 },
-      { name: "천천히 음미", "10대": 8, "20대": 42, "30대": 30, "40대+": 20 },
-      { name: "필사하며 읽기", "10대": 5, "20대": 10, "30대": 12, "40대+": 8 },
-      { name: "밑줄 치며 읽기", "10대": 6, "20대": 10, "30대": 14, "40대+": 9 },
-    ],
-  },
-};
-
-const CROSS_COLORS = ["#ff7618", "#ffd5b5", "#ffe8d6", "#ffb37c"];
 
 const SUMMARY_CARDS = [
   { label: "전체 가입자 수", value: "1,247명" },
@@ -110,19 +85,72 @@ const SUMMARY_CARDS = [
   { label: "이번 달 가입", value: "312명" },
 ];
 
-const PERIOD_DATA: Record<PeriodTab, typeof DAILY_DATA> = {
-  일간: DAILY_DATA,
-  주간: WEEKLY_DATA,
-  월간: MONTHLY_DATA,
-  연간: YEARLY_DATA,
+interface CrossEntry {
+  group: string;
+  top: string;
+  count: number;
+}
+
+interface CrossResult {
+  label: string;
+  data: CrossEntry[];
+}
+
+const CROSS_DUMMY: Record<CrossBasis, Record<CrossItem, CrossResult>> = {
+  gender: {
+    lifeBook: {
+      label: "성별 × 인생 책",
+      data: [
+        { group: "여성", top: "채식주의자", count: 52 },
+        { group: "남성", top: "해리포터와 마법사의 돌", count: 21 },
+        { group: "선택 안함", top: "아몬드", count: 7 },
+      ],
+    },
+    readingStyle: {
+      label: "성별 × 독서 스타일",
+      data: [
+        { group: "여성", top: "포스트잇 활용", count: 187 },
+        { group: "남성", top: "상관 없음", count: 63 },
+        { group: "선택 안함", top: "직접 메모", count: 18 },
+      ],
+    },
+  },
+  ageGroup: {
+    lifeBook: {
+      label: "연령대 × 인생 책",
+      data: [
+        { group: "10대", top: "해리포터와 마법사의 돌", count: 31 },
+        { group: "20대", top: "채식주의자", count: 89 },
+        { group: "30대", top: "연을 쫓는 아이", count: 44 },
+        { group: "40대 이상", top: "달러구트 꿈 백화점", count: 19 },
+      ],
+    },
+    readingStyle: {
+      label: "연령대 × 독서 스타일",
+      data: [
+        { group: "10대", top: "사진으로 기록", count: 28 },
+        { group: "20대", top: "포스트잇 활용", count: 134 },
+        { group: "30대", top: "직접 메모", count: 72 },
+        { group: "40대 이상", top: "직접 메모", count: 31 },
+      ],
+    },
+  },
 };
+
+function buildInsightText(basis: CrossBasis, item: CrossItem, entry: CrossEntry): string {
+  const isBook = item === "lifeBook";
+  const suffix = isBook ? `인생 책으로 '${entry.top}'을(를) 가장 많이 골랐어요.` : `독서 스타일로 '${entry.top}'을(를) 가장 많이 선택했어요.`;
+  if (basis === "gender") return `${entry.group} 유저의 경우, ${suffix}`;
+  return `${entry.group}의 경우, ${suffix}`;
+}
 
 export default function UserStats() {
   const [period, setPeriod] = useState<PeriodTab>("일간");
-  const [crossTab, setCrossTab] = useState<CrossTab>("성별 × 인생 책");
+  const [crossBasis, setCrossBasis] = useState<CrossBasis>("gender");
+  const [crossItem, setCrossItem] = useState<CrossItem>("lifeBook");
 
   const chartData = PERIOD_DATA[period];
-  const cross = CROSS_DATA[crossTab];
+  const crossResult = CROSS_DUMMY[crossBasis][crossItem];
 
   return (
     <div className="p-8">
@@ -164,9 +192,7 @@ export default function UserStats() {
             <CartesianGrid strokeDasharray="3 3" stroke="#f0eeec" />
             <XAxis dataKey="label" tick={{ fontSize: 12, fill: "#858481" }} />
             <YAxis tick={{ fontSize: 12, fill: "#858481" }} />
-            <Tooltip
-              contentStyle={{ borderRadius: 10, border: "1px solid #e2e1df", fontSize: 13 }}
-            />
+            <Tooltip contentStyle={{ borderRadius: 10, border: "1px solid #e2e1df", fontSize: 13 }} />
             <Line
               type="monotone"
               dataKey="가입자수"
@@ -185,27 +211,25 @@ export default function UserStats() {
         {/* 성별 분포 */}
         <div className="bg-white rounded-[20px] border border-[#e2e1df] p-6">
           <h3 className="text-base font-semibold text-[#242322] mb-4">성별 분포</h3>
-          <div className="flex items-center justify-center">
-            <ResponsiveContainer width="100%" height={220}>
-              <PieChart>
-                <Pie
-                  data={GENDER_DATA}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={55}
-                  outerRadius={85}
-                  dataKey="value"
-                  label={({ name, value }) => `${name} ${value}%`}
-                  labelLine={false}
-                >
-                  {GENDER_DATA.map((entry, i) => (
-                    <Cell key={i} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip formatter={(v) => `${v}%`} />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
+          <ResponsiveContainer width="100%" height={220}>
+            <PieChart>
+              <Pie
+                data={GENDER_DATA}
+                cx="50%"
+                cy="50%"
+                innerRadius={55}
+                outerRadius={85}
+                dataKey="value"
+                label={({ name, value }) => `${name} ${value}%`}
+                labelLine={false}
+              >
+                {GENDER_DATA.map((entry, i) => (
+                  <Cell key={i} fill={entry.color} />
+                ))}
+              </Pie>
+              <Tooltip formatter={(v) => `${v}%`} />
+            </PieChart>
+          </ResponsiveContainer>
         </div>
 
         {/* 연령대 분포 */}
@@ -259,28 +283,43 @@ export default function UserStats() {
       <div className="bg-white rounded-[20px] border border-[#e2e1df] p-6">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-lg font-bold text-[#242322]">교차 통계</h2>
-          <select
-            value={crossTab}
-            onChange={(e) => setCrossTab(e.target.value as CrossTab)}
-            className="text-sm border border-[#e2e1df] rounded-[10px] px-3 py-2 bg-white text-[#242322] focus:outline-none focus:border-[#ff7618]"
-          >
-            {(Object.keys(CROSS_DATA) as CrossTab[]).map((key) => (
-              <option key={key} value={key}>{key}</option>
-            ))}
-          </select>
+          <div className="flex gap-2">
+            <select
+              value={crossBasis}
+              onChange={(e) => setCrossBasis(e.target.value as CrossBasis)}
+              className="text-sm border border-[#e2e1df] rounded-[10px] px-3 py-2 bg-white text-[#242322] focus:outline-none focus:border-[#ff7618]"
+            >
+              <option value="gender">성별</option>
+              <option value="ageGroup">연령대</option>
+            </select>
+            <select
+              value={crossItem}
+              onChange={(e) => setCrossItem(e.target.value as CrossItem)}
+              className="text-sm border border-[#e2e1df] rounded-[10px] px-3 py-2 bg-white text-[#242322] focus:outline-none focus:border-[#ff7618]"
+            >
+              <option value="lifeBook">인생 책</option>
+              <option value="readingStyle">독서 스타일</option>
+            </select>
+          </div>
         </div>
-        <ResponsiveContainer width="100%" height={280}>
-          <BarChart data={cross.items} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#f0eeec" />
-            <XAxis dataKey="name" tick={{ fontSize: 12, fill: "#858481" }} />
-            <YAxis tick={{ fontSize: 12, fill: "#858481" }} />
-            <Tooltip />
-            <Legend />
-            {cross.groups.map((group, i) => (
-              <Bar key={group} dataKey={group} fill={CROSS_COLORS[i % CROSS_COLORS.length]} radius={[4, 4, 0, 0]} />
-            ))}
-          </BarChart>
-        </ResponsiveContainer>
+
+        <p className="text-sm text-[#858481] mb-4">{crossResult.label}</p>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {crossResult.data.map((entry) => (
+            <div
+              key={entry.group}
+              className="bg-[#fff8f4] border border-[#ffdcc3] rounded-[16px] p-5"
+            >
+              <p className="text-[#242322] font-medium leading-relaxed">
+                {buildInsightText(crossBasis, crossItem, entry)}
+              </p>
+              <p className="text-sm text-[#858481] mt-2">
+                선택 인원: <span className="font-semibold text-[#ff7618]">{entry.count}명</span>
+              </p>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
