@@ -229,8 +229,8 @@ export default function GroupStats() {
           </div>
           <select
             value={pageSize}
-            onChange={(e) => handlePageSizeChange(Number(e.target.value) as PageSize)}
-            className="text-sm border border-[#e2e1df] rounded-[10px] px-3 py-2 bg-white text-[#242322] focus:outline-none focus:border-[#ff7618]"
+            onChange={(e) => { setPageSize(Number(e.target.value) as PageSize); setCurrentPage(1); }}
+            className="text-sm border border-[#e2e1df] rounded-[8px] px-3 py-2 bg-white text-[#242322] focus:outline-none focus:ring-2 focus:ring-[#ff7618]/30"
           >
             {PAGE_SIZE_OPTIONS.map((s) => (
               <option key={s} value={s}>{s}개씩 보기</option>
@@ -244,9 +244,9 @@ export default function GroupStats() {
               <tr className="border-b border-[#e2e1df] bg-[#f4f3f1]">
                 <th className="text-left py-3 px-4 text-sm font-medium text-[#858481] whitespace-nowrap">그룹명</th>
                 <th className="text-left py-3 px-4 text-sm font-medium text-[#858481] whitespace-nowrap">현재 단계</th>
-                <th className="text-left py-3 px-4 text-sm font-medium text-[#858481] whitespace-nowrap">호스트</th>
+                <th className="text-left py-3 px-4 text-sm font-medium text-[#858481] whitespace-nowrap">호스트 닉네임</th>
                 <th className="text-left py-3 px-4 text-sm font-medium text-[#858481] whitespace-nowrap">호스트 선정 책</th>
-                <th className="text-left py-3 px-4 text-sm font-medium text-[#858481] whitespace-nowrap">게스트</th>
+                <th className="text-left py-3 px-4 text-sm font-medium text-[#858481] whitespace-nowrap">게스트 닉네임</th>
                 <th className="text-left py-3 px-4 text-sm font-medium text-[#858481] whitespace-nowrap">게스트 선정 책</th>
                 <th className="text-left py-3 px-4 text-sm font-medium text-[#858481] whitespace-nowrap">생성일</th>
               </tr>
@@ -289,28 +289,24 @@ export default function GroupStats() {
               >
                 이전
               </button>
-              {Array.from({ length: totalPages }, (_, i) => i + 1)
-                .filter((p) => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 2)
-                .reduce<(number | "...")[]>((acc, p, idx, arr) => {
-                  if (idx > 0 && p - (arr[idx - 1] as number) > 1) acc.push("...");
-                  acc.push(p);
-                  return acc;
-                }, [])
-                .map((item, i) =>
-                  item === "..." ? (
-                    <span key={`ellipsis-${i}`} className="px-2 text-[#858481] text-sm">…</span>
-                  ) : (
-                    <button
-                      key={item}
-                      onClick={() => setCurrentPage(item as number)}
-                      className={`w-8 h-8 rounded-[8px] text-sm font-medium transition-colors ${
-                        currentPage === item ? "bg-[#ff7618] text-white" : "text-[#5e5d5b] hover:bg-[#f4f3f1]"
-                      }`}
-                    >
-                      {item}
-                    </button>
-                  )
-                )}
+              {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                const start = Math.max(1, Math.min(currentPage - 2, totalPages - 4));
+                const page = start + i;
+                if (page > totalPages) return null;
+                return (
+                  <button
+                    key={page}
+                    onClick={() => setCurrentPage(page)}
+                    className={`w-9 h-9 text-sm rounded-[8px] font-medium transition-colors ${
+                      currentPage === page
+                        ? "bg-[#ff7618] text-white"
+                        : "border border-[#e2e1df] text-[#5e5d5b] hover:bg-[#f4f3f1]"
+                    }`}
+                  >
+                    {page}
+                  </button>
+                );
+              })}
               <button
                 onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                 disabled={currentPage === totalPages}

@@ -323,76 +323,121 @@ export default function UserStats() {
 
       {/* 섹션 3: 교차 통계 */}
       <div className="bg-white rounded-[20px] border border-[#e2e1df] p-6">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-lg font-bold text-[#242322]">교차 통계</h2>
-          <div className="flex items-center gap-3">
-            <div className="flex flex-col gap-1">
-              <p className="text-xs text-[#858481] px-1">성별</p>
-              <div className="flex gap-1 bg-[#f4f3f1] rounded-[10px] p-1">
-                {GENDER_OPTIONS.map((g) => (
-                  <button
-                    key={g}
-                    onClick={() => setCrossGroup(g)}
-                    className={`px-3 py-1.5 rounded-[8px] text-sm font-medium transition-colors ${
-                      crossGroup === g ? "bg-[#ff7618] text-white" : "text-[#858481] hover:text-[#242322]"
-                    }`}
-                  >
-                    {g}
-                  </button>
-                ))}
-              </div>
+        <div className="mb-6">
+          <h2 className="text-lg font-bold text-[#242322] mb-1">교차 통계</h2>
+          <p className="text-sm text-[#858481]">성별 또는 연령대를 선택해 인생 책과 독서 스타일을 확인하세요</p>
+        </div>
+
+        {/* 칩 선택 영역 */}
+        <div className="flex flex-wrap gap-3 mb-6">
+          <div className="flex flex-col gap-1.5">
+            <p className="text-xs font-medium text-[#858481] px-1">성별</p>
+            <div className="flex gap-1.5">
+              {GENDER_OPTIONS.map((g) => (
+                <button
+                  key={g}
+                  onClick={() => setCrossGroup(g)}
+                  className={`px-4 py-2 rounded-full text-sm font-medium border transition-all ${
+                    crossGroup === g
+                      ? "bg-[#ff7618] text-white border-[#ff7618] shadow-sm"
+                      : "bg-white text-[#5e5d5b] border-[#e2e1df] hover:border-[#ff7618] hover:text-[#ff7618]"
+                  }`}
+                >
+                  {g}
+                </button>
+              ))}
             </div>
-            <div className="w-px h-10 bg-[#e2e1df]" />
-            <div className="flex flex-col gap-1">
-              <p className="text-xs text-[#858481] px-1">연령대</p>
-              <div className="flex gap-1 bg-[#f4f3f1] rounded-[10px] p-1">
-                {AGE_OPTIONS.map((a) => (
-                  <button
-                    key={a}
-                    onClick={() => setCrossGroup(a)}
-                    className={`px-3 py-1.5 rounded-[8px] text-sm font-medium transition-colors ${
-                      crossGroup === a ? "bg-[#ff7618] text-white" : "text-[#858481] hover:text-[#242322]"
-                    }`}
-                  >
-                    {a}
-                  </button>
-                ))}
-              </div>
+          </div>
+
+          <div className="w-px self-stretch bg-[#e2e1df] mx-1 mt-6" />
+
+          <div className="flex flex-col gap-1.5">
+            <p className="text-xs font-medium text-[#858481] px-1">연령대</p>
+            <div className="flex gap-1.5">
+              {AGE_OPTIONS.map((a) => (
+                <button
+                  key={a}
+                  onClick={() => setCrossGroup(a)}
+                  className={`px-4 py-2 rounded-full text-sm font-medium border transition-all ${
+                    crossGroup === a
+                      ? "bg-[#ff7618] text-white border-[#ff7618] shadow-sm"
+                      : "bg-white text-[#5e5d5b] border-[#e2e1df] hover:border-[#ff7618] hover:text-[#ff7618]"
+                  }`}
+                >
+                  {a}
+                </button>
+              ))}
             </div>
           </div>
         </div>
 
-        <p className="text-sm text-[#858481] mb-5">
-          <span className="font-semibold text-[#242322]">{crossGroup}</span> 유저의 온보딩 응답
-        </p>
+        {/* 인사이트 카드 */}
+        {(() => {
+          const data = CROSS_GROUP_DATA[crossGroup];
+          const isGender = GENDER_OPTIONS.includes(crossGroup);
+          const subjectLabel = isGender ? `${crossGroup} 유저` : crossGroup;
+          const topBook = data.topBooks[0];
+          const topStyle = data.readingStyles[0];
+          return (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* 인생 책 카드 */}
+              <div className="bg-[#fff8f4] border border-[#ffdcc3] rounded-[16px] p-5">
+                <p className="text-xs font-semibold text-[#ff7618] mb-3 uppercase tracking-wide">인생 책</p>
+                <p className="text-[#242322] font-medium leading-relaxed text-base">
+                  {subjectLabel}의 경우, 인생 책으로{" "}
+                  <span className="font-bold text-[#ff7618]">'{topBook.name}'</span>을(를) 가장 많이 골랐어요.
+                </p>
+                <p className="text-sm text-[#858481] mt-3">
+                  선택 인원 <span className="font-semibold text-[#ff7618]">{topBook.value}명</span>
+                </p>
+                <div className="mt-4 space-y-2">
+                  {data.topBooks.map((book, i) => (
+                    <div key={book.name} className="flex items-center gap-3">
+                      <span className={`text-xs font-bold w-5 text-center shrink-0 ${i === 0 ? "text-[#ff7618]" : "text-[#b0afad]"}`}>
+                        {i + 1}
+                      </span>
+                      <div className="flex-1 flex items-center justify-between gap-2 min-w-0">
+                        <span className="text-sm text-[#242322] truncate">{book.name}</span>
+                        <span className="text-xs text-[#858481] shrink-0">{book.value}명</span>
+                      </div>
+                      <div className="w-20 h-1.5 bg-[#f4f3f1] rounded-full overflow-hidden shrink-0">
+                        <div className="h-full bg-[#ff7618] rounded-full" style={{ width: `${(book.value / data.topBooks[0].value) * 100}%` }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
 
-        <div className="grid grid-cols-2 gap-6">
-          <div>
-            <h3 className="text-sm font-semibold text-[#242322] mb-3">인생 책 TOP 5</h3>
-            <ResponsiveContainer width="100%" height={200}>
-              <BarChart data={crossData.topBooks} layout="vertical" margin={{ top: 0, right: 20, left: 10, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0eeec" />
-                <XAxis type="number" tick={{ fontSize: 11, fill: "#858481" }} />
-                <YAxis dataKey="name" type="category" tick={{ fontSize: 11, fill: "#858481" }} width={130} />
-                <Tooltip />
-                <Bar dataKey="value" fill="#ff7618" radius={[0, 6, 6, 0]} name="선택 인원" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-
-          <div>
-            <h3 className="text-sm font-semibold text-[#242322] mb-3">독서 스타일</h3>
-            <ResponsiveContainer width="100%" height={200}>
-              <BarChart data={crossData.readingStyles} layout="vertical" margin={{ top: 0, right: 20, left: 10, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0eeec" />
-                <XAxis type="number" tick={{ fontSize: 11, fill: "#858481" }} />
-                <YAxis dataKey="name" type="category" tick={{ fontSize: 11, fill: "#858481" }} width={110} />
-                <Tooltip />
-                <Bar dataKey="value" fill="#ffd5b5" radius={[0, 6, 6, 0]} name="선택 인원" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
+              {/* 독서 스타일 카드 */}
+              <div className="bg-[#f4f3f1] border border-[#e2e1df] rounded-[16px] p-5">
+                <p className="text-xs font-semibold text-[#858481] mb-3 uppercase tracking-wide">독서 스타일</p>
+                <p className="text-[#242322] font-medium leading-relaxed text-base">
+                  {subjectLabel}의 경우, 독서 스타일로{" "}
+                  <span className="font-bold text-[#242322]">'{topStyle.name}'</span>을(를) 가장 많이 선택했어요.
+                </p>
+                <p className="text-sm text-[#858481] mt-3">
+                  선택 인원 <span className="font-semibold text-[#242322]">{topStyle.value}명</span>
+                </p>
+                <div className="mt-4 space-y-2">
+                  {data.readingStyles.map((style, i) => (
+                    <div key={style.name} className="flex items-center gap-3">
+                      <span className={`text-xs font-bold w-5 text-center shrink-0 ${i === 0 ? "text-[#242322]" : "text-[#b0afad]"}`}>
+                        {i + 1}
+                      </span>
+                      <div className="flex-1 flex items-center justify-between gap-2 min-w-0">
+                        <span className="text-sm text-[#242322] truncate">{style.name}</span>
+                        <span className="text-xs text-[#858481] shrink-0">{style.value}명</span>
+                      </div>
+                      <div className="w-20 h-1.5 bg-[#e2e1df] rounded-full overflow-hidden shrink-0">
+                        <div className="h-full bg-[#858481] rounded-full" style={{ width: `${(style.value / data.readingStyles[0].value) * 100}%` }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          );
+        })()}
       </div>
     </div>
   );
