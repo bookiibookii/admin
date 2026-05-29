@@ -7,6 +7,7 @@ import NoticeDetail from "./pages/NoticeDetail";
 import NoticeEditor from "./pages/NoticeEditor";
 import UserStats from "./pages/UserStats";
 import GroupStats from "./pages/GroupStats";
+import GroupDetail from "./pages/GroupDetail";
 import AdminManagement from "./pages/AdminManagement";
 import PrivateRoute from "./components/PrivateRoute";
 import Unauthorized from "./pages/Unauthorized";
@@ -35,6 +36,7 @@ export const router = createBrowserRouter([
           { path: "notices/:id/edit", Component: NoticeEditor },
           { path: "user-stats", Component: UserStats },
           { path: "group-stats", Component: GroupStats },
+          { path: "group-stats/:id", Component: GroupDetail },
           { path: "admins", Component: AdminManagement },
         ],
       },
