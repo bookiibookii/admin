@@ -107,6 +107,25 @@ export default function AdminLayout() {
           </button>
         </div>
 
+        {/* 데스크탑 접기/펼치기 버튼 */}
+        <div className="hidden md:block border-b border-[#e2e1df]">
+          <button
+            onClick={() => setCollapsed(!collapsed)}
+            className={`flex w-full items-center py-2.5 text-[#b0afad] hover:bg-[#f4f3f1] hover:text-[#5e5d5b] transition-colors
+              ${collapsed ? "justify-center px-2" : "gap-2 px-4"}
+            `}
+          >
+            {collapsed ? (
+              <ChevronRight className="w-4 h-4 shrink-0" />
+            ) : (
+              <>
+                <ChevronLeft className="w-4 h-4 shrink-0" />
+                <span className="text-xs">접기</span>
+              </>
+            )}
+          </button>
+        </div>
+
         {/* 네비게이션 */}
         <nav className="flex-1 overflow-y-auto p-2">
           <ul className="space-y-1">
@@ -145,22 +164,6 @@ export default function AdminLayout() {
             </span>
           </button>
 
-          {/* 데스크탑 접기/펼치기 버튼 */}
-          <button
-            onClick={() => setCollapsed(!collapsed)}
-            className={`hidden md:flex w-full items-center py-2.5 rounded-lg text-[#b0afad] hover:bg-[#f4f3f1] hover:text-[#5e5d5b] transition-colors mt-1
-              ${collapsed ? "justify-center px-2" : "gap-3 px-4"}
-            `}
-          >
-            {collapsed ? (
-              <ChevronRight className="w-4 h-4 shrink-0" />
-            ) : (
-              <>
-                <ChevronLeft className="w-4 h-4 shrink-0" />
-                <span className="text-sm">접기</span>
-              </>
-            )}
-          </button>
         </div>
       </aside>
 
