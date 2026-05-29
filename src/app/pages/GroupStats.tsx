@@ -5,8 +5,9 @@ import {
 } from "recharts";
 
 type ContentTab = "인기 책" | "인기 저자" | "인기 출판사";
+type ExchangeFilter = "직접 교환" | "택배 교환";
 
-type GroupStage = "모집 중" | "책 선정" | "독서 중" | "교환 진행" | "완료";
+type GroupStage = "모집 중" | "내 책 읽기" | "교환" | "파트너 책 읽기" | "반납" | "종료";
 
 interface Group {
   id: number;
@@ -18,15 +19,15 @@ interface Group {
 }
 
 const DUMMY_GROUPS: Group[] = [
-  { id: 1, name: "책과 함께하는 20대", stage: "독서 중", memberCount: 4, book: "채식주의자", createdAt: "2026.04.12" },
-  { id: 2, name: "한강 작품 탐독 클럽", stage: "교환 진행", memberCount: 6, book: "아몬드", createdAt: "2026.04.08" },
-  { id: 3, name: "느리게 읽는 사람들", stage: "완료", memberCount: 3, book: "달러구트 꿈 백화점", createdAt: "2026.03.22" },
+  { id: 1, name: "책과 함께하는 20대", stage: "내 책 읽기", memberCount: 4, book: "채식주의자", createdAt: "2026.04.12" },
+  { id: 2, name: "한강 작품 탐독 클럽", stage: "교환", memberCount: 6, book: "아몬드", createdAt: "2026.04.08" },
+  { id: 3, name: "느리게 읽는 사람들", stage: "종료", memberCount: 3, book: "달러구트 꿈 백화점", createdAt: "2026.03.22" },
   { id: 4, name: "서울 독서 모임", stage: "모집 중", memberCount: 2, book: "(미정)", createdAt: "2026.05.25" },
-  { id: 5, name: "에세이 좋아하는 사람", stage: "책 선정", memberCount: 4, book: "(투표 중)", createdAt: "2026.05.20" },
-  { id: 6, name: "밤에 읽는 소설", stage: "독서 중", memberCount: 5, book: "82년생 김지영", createdAt: "2026.04.30" },
-  { id: 7, name: "고전 문학 탐구반", stage: "완료", memberCount: 4, book: "연을 쫓는 아이", createdAt: "2026.03.10" },
-  { id: 8, name: "주말 독서 클럽", stage: "교환 진행", memberCount: 3, book: "해리포터", createdAt: "2026.04.20" },
-  { id: 9, name: "인문학 읽는 사람들", stage: "독서 중", memberCount: 6, book: "사피엔스", createdAt: "2026.05.01" },
+  { id: 5, name: "에세이 좋아하는 사람", stage: "내 책 읽기", memberCount: 4, book: "(투표 중)", createdAt: "2026.05.20" },
+  { id: 6, name: "밤에 읽는 소설", stage: "파트너 책 읽기", memberCount: 5, book: "82년생 김지영", createdAt: "2026.04.30" },
+  { id: 7, name: "고전 문학 탐구반", stage: "종료", memberCount: 4, book: "연을 쫓는 아이", createdAt: "2026.03.10" },
+  { id: 8, name: "주말 독서 클럽", stage: "반납", memberCount: 3, book: "해리포터", createdAt: "2026.04.20" },
+  { id: 9, name: "인문학 읽는 사람들", stage: "내 책 읽기", memberCount: 6, book: "사피엔스", createdAt: "2026.05.01" },
   { id: 10, name: "봄 독서 챌린지", stage: "모집 중", memberCount: 1, book: "(미정)", createdAt: "2026.05.28" },
 ];
 
@@ -83,20 +84,32 @@ const EXCHANGE_DATA = [
   { name: "택배 교환", value: 46, color: "#ffd5b5" },
 ];
 
-const STAGE_DATA = [
-  { name: "모집 중", value: 17 },
-  { name: "책 선정", value: 12 },
-  { name: "독서 중", value: 45 },
-  { name: "교환 진행", value: 37 },
-  { name: "완료", value: 72 },
-];
+const STAGE_DATA: Record<ExchangeFilter, { name: string; value: number }[]> = {
+  "직접 교환": [
+    { name: "모집 중", value: 10 },
+    { name: "내 책 읽기", value: 28 },
+    { name: "교환", value: 22 },
+    { name: "파트너 책 읽기", value: 19 },
+    { name: "반납", value: 8 },
+    { name: "종료", value: 42 },
+  ],
+  "택배 교환": [
+    { name: "모집 중", value: 7 },
+    { name: "내 책 읽기", value: 19 },
+    { name: "교환", value: 15 },
+    { name: "파트너 책 읽기", value: 14 },
+    { name: "반납", value: 10 },
+    { name: "종료", value: 30 },
+  ],
+};
 
 const STAGE_BADGE: Record<GroupStage, string> = {
   "모집 중": "bg-blue-100 text-blue-700",
-  "책 선정": "bg-yellow-100 text-yellow-700",
-  "독서 중": "bg-green-100 text-green-700",
-  "교환 진행": "bg-orange-100 text-orange-700",
-  "완료": "bg-gray-100 text-gray-600",
+  "내 책 읽기": "bg-green-100 text-green-700",
+  "교환": "bg-orange-100 text-orange-700",
+  "파트너 책 읽기": "bg-teal-100 text-teal-700",
+  "반납": "bg-purple-100 text-purple-700",
+  "종료": "bg-gray-100 text-gray-600",
 };
 
 const SUMMARY_CARDS = [
@@ -108,6 +121,7 @@ const SUMMARY_CARDS = [
 
 export default function GroupStats() {
   const [contentTab, setContentTab] = useState<ContentTab>("인기 책");
+  const [exchangeFilter, setExchangeFilter] = useState<ExchangeFilter>("직접 교환");
 
   return (
     <div className="p-8">
@@ -210,9 +224,24 @@ export default function GroupStats() {
 
       {/* 섹션 4: 그룹 진행 단계 현황 */}
       <div className="bg-white rounded-[20px] border border-[#e2e1df] p-6 mb-8">
-        <h2 className="text-lg font-bold text-[#242322] mb-4">그룹 진행 단계 현황</h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-bold text-[#242322]">그룹 진행 단계 현황</h2>
+          <div className="flex gap-1 bg-[#f4f3f1] rounded-[10px] p-1">
+            {(["직접 교환", "택배 교환"] as ExchangeFilter[]).map((filter) => (
+              <button
+                key={filter}
+                onClick={() => setExchangeFilter(filter)}
+                className={`px-4 py-2 rounded-[8px] text-sm font-medium transition-colors ${
+                  exchangeFilter === filter ? "bg-[#ff7618] text-white" : "text-[#858481] hover:text-[#242322]"
+                }`}
+              >
+                {filter}
+              </button>
+            ))}
+          </div>
+        </div>
         <ResponsiveContainer width="100%" height={220}>
-          <BarChart data={STAGE_DATA} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
+          <BarChart data={STAGE_DATA[exchangeFilter]} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f0eeec" />
             <XAxis dataKey="name" tick={{ fontSize: 12, fill: "#858481" }} />
             <YAxis tick={{ fontSize: 12, fill: "#858481" }} />
