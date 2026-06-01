@@ -70,8 +70,19 @@ export default function AdminLogin() {
       <div className="w-full max-w-md">
         <div className="bg-white rounded-[20px] p-8 shadow-sm">
           <div className="text-center mb-10">
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-[#ff7618] rounded-[20px] mb-4">
-              <span className="text-white text-2xl font-bold">B</span>
+            <div className="inline-flex items-center justify-center mb-4">
+              <img
+                src="/symbol_dark.png"
+                alt="BOOKIIBOOKII"
+                className="w-20 h-20 object-contain"
+                onError={(e) => {
+                  e.currentTarget.style.display = "none";
+                  (e.currentTarget.nextElementSibling as HTMLElement | null)?.removeAttribute("style");
+                }}
+              />
+              <div className="w-20 h-20 bg-[#ff7618] rounded-[20px] flex items-center justify-center" style={{ display: "none" }}>
+                <span className="text-white text-2xl font-bold">B</span>
+              </div>
             </div>
             <h1 className="text-2xl font-bold text-[#242322]">BOOKIIBOOKII</h1>
             <p className="text-[#858481] mt-1 text-sm">관리자 로그인</p>
