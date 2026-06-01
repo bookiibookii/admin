@@ -100,18 +100,6 @@ export default function AdminLogin() {
               />
             </div>
 
-            <button
-              disabled
-              className="w-full bg-[#FEE500] text-[#000000]/40 py-4 rounded-[10px] font-medium flex items-center justify-center gap-3 cursor-not-allowed opacity-50"
-            >
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path
-                  d="M10 3C5.58172 3 2 5.89543 2 9.5C2 11.6484 3.23828 13.5547 5.16797 14.7344L4.35547 17.6172C4.28516 17.8594 4.55078 18.0547 4.75781 17.9062L8.14844 15.6094C8.75781 15.7109 9.37109 15.7656 10 15.7656C14.4183 15.7656 18 12.8984 18 9.29688C18 5.69531 14.4183 3 10 3Z"
-                  fill="currentColor"
-                />
-              </svg>
-              카카오 로그인 (준비 중)
-            </button>
           </div>
         </div>
       </div>
