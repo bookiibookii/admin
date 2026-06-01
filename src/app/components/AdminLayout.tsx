@@ -1,4 +1,4 @@
-// 로고 이미지: public/logo.png 경로에 실제 파일 배치 필요
+// 로고 이미지: public/symbol_dark.png 경로에 실제 파일 배치 필요
 import { useState, useEffect } from "react";
 import { Outlet, Link, useNavigate, useLocation } from "react-router";
 import { toast } from "sonner";
@@ -49,7 +49,7 @@ export default function AdminLayout() {
         </button>
         <div className="flex items-center gap-2">
           <img
-            src="/logo.png"
+            src="/symbol_dark.png"
             alt="BOOKIIBOOKII"
             className="w-7 h-7 object-contain rounded-[6px]"
             onError={(e) => {
@@ -85,7 +85,7 @@ export default function AdminLayout() {
         <div className={`border-b border-[#e2e1df] flex items-center gap-3 transition-all duration-300 ${collapsed ? "md:justify-center p-4" : "p-5"}`}>
           <div className="flex items-center gap-3 min-w-0 flex-1">
             <img
-              src="/logo.png"
+              src="/symbol_dark.png"
               alt="BOOKIIBOOKII"
               className="w-9 h-9 object-contain rounded-[8px] shrink-0"
               onError={(e) => {
