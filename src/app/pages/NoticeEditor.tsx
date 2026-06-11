@@ -24,26 +24,6 @@ function formatDateTime(dateString: string): string {
   return `${yyyy}.${mm}.${dd} ${hh}:${min}`;
 }
 
-const DUMMY_NOTICES: Record<string, NoticeDetail> = {
-  "3": {
-    title: "베스트 부키 메이트 시스템 오픈",
-    content: "이번 달부터 베스트 부키 메이트 랭킹을 확인할 수 있어요.\n\n## 선정 기준\n- 교환독서 완료 횟수\n- 감사 하트 수\n- 문장 공유 수\n\n많은 참여 부탁드려요! 📚",
-    createdAt: new Date(Date.now() - 1000 * 60 * 3).toISOString(),
-    updatedAt: null,
-  },
-  "2": {
-    title: "12월 업데이트 안내",
-    content: "새로운 기능이 추가되었습니다! **독서 카드 꾸미기** 기능을 확인해보세요.\n\n### 주요 변경사항\n1. 독서 카드 꾸미기 기능 추가\n2. 그룹 초대 알림 개선\n3. 버그 수정",
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString(),
-    updatedAt: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
-  },
-  "1": {
-    title: "서비스 점검 완료 안내",
-    content: "11월 25일 새벽 2시~4시 진행된 서비스 점검이 완료되었습니다.\n\n이용에 불편을 드려 죄송합니다.",
-    createdAt: new Date("2026-05-07T10:00:00Z").toISOString(),
-    updatedAt: null,
-  },
-};
 
 export default function NoticeEditor() {
   const { id } = useParams();
@@ -60,18 +40,11 @@ export default function NoticeEditor() {
 
     const fetchDetail = async () => {
       try {
-        // TODO: API 연동 시 아래 주석 해제 후 더미 데이터 제거
-        // const { data } = await api.get(`/api/notice/${id}`);
-        // if (data.isSuccess) {
-        //   setTitle(data.result.title || "");
-        //   setContent(data.result.content || "");
-        //   setDetail(data.result);
-        // }
-        const dummy = DUMMY_NOTICES[id!];
-        if (dummy) {
-          setTitle(dummy.title);
-          setContent(dummy.content);
-          setDetail(dummy);
+        const { data } = await api.get(`/api/notice/${id}`);
+        if (data.isSuccess) {
+          setTitle(data.result.title || "");
+          setContent(data.result.content || "");
+          setDetail(data.result);
         } else {
           toast.error("공지사항을 불러오지 못했습니다.");
         }

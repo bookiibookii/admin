@@ -23,32 +23,6 @@ interface Notice {
   authorNickname: string;
 }
 
-const DUMMY_NOTICES: Notice[] = [
-  {
-    id: 3,
-    title: "베스트 부키 메이트 시스템 오픈",
-    content: "이번 달부터 베스트 부키 메이트 랭킹을 확인할 수 있어요.\n\n## 선정 기준\n- 교환독서 완료 횟수\n- 감사 하트 수\n- 문장 공유 수\n\n많은 참여 부탁드려요! 📚",
-    createdAt: new Date(Date.now() - 1000 * 60 * 3).toISOString(),
-    updatedAt: null,
-    authorNickname: "noshel",
-  },
-  {
-    id: 2,
-    title: "12월 업데이트 안내",
-    content: "새로운 기능이 추가되었습니다! **독서 카드 꾸미기** 기능을 확인해보세요.\n\n### 주요 변경사항\n1. 독서 카드 꾸미기 기능 추가\n2. 그룹 초대 알림 개선\n3. 버그 수정",
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString(),
-    updatedAt: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
-    authorNickname: "noshel",
-  },
-  {
-    id: 1,
-    title: "서비스 점검 완료 안내",
-    content: "11월 25일 새벽 2시~4시 진행된 서비스 점검이 완료되었습니다.\n\n이용에 불편을 드려 죄송합니다.",
-    createdAt: new Date("2026-05-07T10:00:00Z").toISOString(),
-    updatedAt: null,
-    authorNickname: "noshel",
-  },
-];
 
 function formatRelativeTime(dateString: string): string {
   const now = Date.now();
@@ -86,13 +60,11 @@ export default function NoticeList() {
   const fetchNotices = async () => {
     setIsLoading(true);
     try {
-      // TODO: API 연동 시 아래 주석 해제 후 더미 데이터 제거
-      // const { data } = await api.get("/api/admin/notice");
-      // if (data.isSuccess) {
-      //   const sorted = (data.result || []).sort((a: Notice, b: Notice) => b.id - a.id);
-      //   setNotices(sorted);
-      // }
-      setNotices([...DUMMY_NOTICES].sort((a, b) => b.id - a.id));
+      const { data } = await api.get("/api/admin/notice");
+      if (data.isSuccess) {
+        const sorted = (data.result || []).sort((a: Notice, b: Notice) => b.id - a.id);
+        setNotices(sorted);
+      }
     } catch (error: any) {
       toast.error(error.response?.data?.message || "서버 통신 오류가 발생했습니다.");
     } finally {
