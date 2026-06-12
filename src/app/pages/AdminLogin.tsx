@@ -40,9 +40,14 @@ export default function AdminLogin() {
           localStorage.setItem("refreshToken", refreshToken);
           localStorage.setItem("userRole", role);
 
-          // 닉네임 저장: 백엔드 응답 우선, 없으면 Google 이름 사용
-          const nickname = data.result.nickname || payload.name || "관리자";
-          localStorage.setItem("adminNickname", nickname);
+          // 부키부키 닉네임 조회 (토큰 저장 후 바로 호출)
+          try {
+            const profileRes = await api.get("/api/mypage");
+            const nickname = profileRes.data?.result?.nickname || payload.name || "관리자";
+            localStorage.setItem("adminNickname", nickname);
+          } catch {
+            localStorage.setItem("adminNickname", payload.name || "관리자");
+          }
 
           toast.success("관리자 로그인에 성공했습니다.");
           navigate("/dashboard");

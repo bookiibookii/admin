@@ -1,5 +1,8 @@
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router";
 import { Bell, Users, BarChart2, ArrowRight, Plus } from "lucide-react";
+import api from "../../lib/api";
+import { formatRelativeTime } from "../../lib/dateUtils";
 
 interface RecentNotice {
   id: number;
@@ -19,11 +22,6 @@ interface GroupStats {
   completedGroups: number;
 }
 
-const DUMMY_RECENT_NOTICES: RecentNotice[] = [
-  { id: 3, title: "베스트 부키 메이트 시스템 오픈", createdAt: new Date(Date.now() - 1000 * 60 * 3).toISOString() },
-  { id: 2, title: "12월 업데이트 안내", createdAt: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString() },
-  { id: 1, title: "서비스 점검 완료 안내", createdAt: new Date("2026-05-07T10:00:00Z").toISOString() },
-];
 
 const DUMMY_USER_STATS: UserStats = {
   totalUsers: 1247,
@@ -37,29 +35,6 @@ const DUMMY_GROUP_STATS: GroupStats = {
   completedGroups: 72,
 };
 
-// TODO: API 연동 시 아래 주석 해제 후 더미 데이터 제거
-// const { data } = await api.get("/api/admin/dashboard");
-// setUserStats(data.result.userStats);
-// setGroupStats(data.result.groupStats);
-// setRecentNotices(data.result.recentNotices);
-
-function formatRelativeTime(dateString: string): string {
-  const now = Date.now();
-  const diff = now - new Date(dateString).getTime();
-  const seconds = Math.floor(diff / 1000);
-  const minutes = Math.floor(diff / 1000 / 60);
-  const hours = Math.floor(diff / 1000 / 60 / 60);
-  const days = Math.floor(diff / 1000 / 60 / 60 / 24);
-
-  if (seconds < 60) return "방금";
-  if (minutes < 60) return `${minutes}분 전`;
-  if (hours < 24) return `${hours}시간 전`;
-  if (hours < 72) return `${days}일 전`;
-
-  const d = new Date(dateString);
-  return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
-}
-
 function formatNoticeId(id: number): string {
   return `N-${String(id).padStart(3, "0")}`;
 }
@@ -68,9 +43,25 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const adminNickname = localStorage.getItem("adminNickname") || "관리자";
 
-  const notices = DUMMY_RECENT_NOTICES;
+  const [notices, setNotices] = useState<RecentNotice[]>([]);
+  const [isLoadingNotices, setIsLoadingNotices] = useState(true);
+
   const userStats = DUMMY_USER_STATS;
   const groupStats = DUMMY_GROUP_STATS;
+
+  useEffect(() => {
+    api.get("/api/admin/notice")
+      .then(({ data }) => {
+        if (data.isSuccess) {
+          const sorted = (data.result || [])
+            .sort((a: RecentNotice, b: RecentNotice) => b.id - a.id)
+            .slice(0, 5);
+          setNotices(sorted);
+        }
+      })
+      .catch(() => {})
+      .finally(() => setIsLoadingNotices(false));
+  }, []);
 
   return (
     <div className="p-4 md:p-8">
@@ -100,26 +91,34 @@ export default function Dashboard() {
           </div>
 
           <ul className="divide-y divide-[#f4f3f1] flex-1">
-            {notices.map((notice) => (
-              <li key={notice.id}>
-                <button
-                  onClick={() => navigate(`/notices/${notice.id}`)}
-                  className="w-full flex items-center justify-between py-3 px-2 rounded-lg hover:bg-[#f9f9f8] transition-colors group text-left"
-                >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <span className="text-xs text-[#b0afad] font-mono shrink-0">
-                      {formatNoticeId(notice.id)}
-                    </span>
-                    <span className="text-sm text-[#242322] font-medium truncate group-hover:text-[#ff7618] transition-colors">
-                      {notice.title}
-                    </span>
-                  </div>
-                  <span className="text-xs text-[#858481] shrink-0 ml-4">
-                    {formatRelativeTime(notice.createdAt)}
-                  </span>
-                </button>
+            {isLoadingNotices ? (
+              <li className="flex justify-center py-6">
+                <div className="w-5 h-5 border-2 border-[#ff7618] border-t-transparent rounded-full animate-spin" />
               </li>
-            ))}
+            ) : notices.length === 0 ? (
+              <li className="text-center py-6 text-sm text-[#858481]">등록된 공지사항이 없습니다.</li>
+            ) : (
+              notices.map((notice) => (
+                <li key={notice.id}>
+                  <button
+                    onClick={() => navigate(`/notices/${notice.id}`)}
+                    className="w-full flex items-center justify-between py-3 px-2 rounded-lg hover:bg-[#f9f9f8] transition-colors group text-left"
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <span className="text-xs text-[#b0afad] font-mono shrink-0">
+                        {formatNoticeId(notice.id)}
+                      </span>
+                      <span className="text-sm text-[#242322] font-medium truncate group-hover:text-[#ff7618] transition-colors">
+                        {notice.title}
+                      </span>
+                    </div>
+                    <span className="text-xs text-[#858481] shrink-0 ml-4">
+                      {formatRelativeTime(notice.createdAt)}
+                    </span>
+                  </button>
+                </li>
+              ))
+            )}
           </ul>
 
           <div className="mt-4 pt-4 border-t border-[#f4f3f1]">

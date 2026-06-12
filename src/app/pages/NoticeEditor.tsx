@@ -6,6 +6,7 @@ import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { Textarea } from "../components/ui/textarea";
 import api from "../../lib/api";
+import { formatDateTime } from "../../lib/dateUtils";
 
 interface NoticeDetail {
   title: string;
@@ -15,15 +16,6 @@ interface NoticeDetail {
   updatedAt: string | null;
 }
 
-function formatDateTime(dateString: string): string {
-  const d = new Date(dateString);
-  const yyyy = d.getFullYear();
-  const mm = String(d.getMonth() + 1).padStart(2, "0");
-  const dd = String(d.getDate()).padStart(2, "0");
-  const hh = String(d.getHours()).padStart(2, "0");
-  const min = String(d.getMinutes()).padStart(2, "0");
-  return `${yyyy}.${mm}.${dd} ${hh}:${min}`;
-}
 
 export default function NoticeEditor() {
   const { id: noticeId } = useParams();
@@ -41,7 +33,7 @@ export default function NoticeEditor() {
 
     const fetchDetail = async () => {
       try {
-        const { data } = await api.get(`/api/admin/notice/${noticeId}`);
+        const { data } = await api.get(`/api/notice/${noticeId}`);
         if (data.isSuccess) {
           setTitle(data.result.title || "");
           setSummary(data.result.summary || "");

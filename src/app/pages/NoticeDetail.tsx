@@ -14,6 +14,7 @@ import {
 } from "../components/ui/alert-dialog";
 import { toast } from "sonner";
 import api from "../../lib/api";
+import { formatDateTime } from "../../lib/dateUtils";
 
 interface Notice {
   id: number;
@@ -25,15 +26,6 @@ interface Notice {
 }
 
 
-function formatDateTime(dateString: string): string {
-  const d = new Date(dateString);
-  const yyyy = d.getFullYear();
-  const mm = String(d.getMonth() + 1).padStart(2, "0");
-  const dd = String(d.getDate()).padStart(2, "0");
-  const hh = String(d.getHours()).padStart(2, "0");
-  const min = String(d.getMinutes()).padStart(2, "0");
-  return `${yyyy}.${mm}.${dd} ${hh}:${min}`;
-}
 
 export default function NoticeDetail() {
   const { id } = useParams();
