@@ -20,13 +20,12 @@ interface Notice {
   id: number;
   title: string;
   content: string;
+  summary?: string;
   createdAt: string;
   updatedAt: string | null;
   authorNickname: string;
   updatedByNickname?: string;
 }
-
-
 
 export default function NoticeDetail() {
   const { id } = useParams();
@@ -39,13 +38,37 @@ export default function NoticeDetail() {
     const fetchDetail = async () => {
       setIsLoading(true);
       try {
-        const { data } = await api.get(`/api/notice/${id}`);
-        if (data.isSuccess) {
-          setNotice(data.result);
-        } else {
+        // 어드민 목록 API(날짜·작성자 포함)와 공개 상세 API(content)를 병렬 호출 후 병합
+        const [adminRes, detailRes] = await Promise.all([
+          api.get("/api/admin/notice"),
+          api.get(`/api/notice/${id}`),
+        ]);
+
+        const adminNotice = adminRes.data?.isSuccess
+          ? (adminRes.data.result || []).find(
+              (n: any) => String(n.id) === String(id) || String(n.noticeId) === String(id)
+            )
+          : null;
+
+        const detail = detailRes.data?.isSuccess ? detailRes.data.result : null;
+
+        if (!adminNotice && !detail) {
           toast.error("공지사항을 찾을 수 없습니다.");
           navigate("/notices");
+          return;
         }
+
+        setNotice({
+          id: Number(id),
+          title: adminNotice?.title ?? detail?.title ?? "",
+          content: detail?.content ?? adminNotice?.content ?? "",
+          summary: adminNotice?.summary ?? detail?.summary,
+          // 어드민 API 날짜 우선 (포맷이 안정적)
+          createdAt: adminNotice?.createdAt ?? detail?.createdAt ?? "",
+          updatedAt: adminNotice?.updatedAt ?? detail?.updatedAt ?? null,
+          authorNickname: adminNotice?.authorNickname ?? detail?.authorNickname ?? "-",
+          updatedByNickname: adminNotice?.updatedByNickname ?? detail?.updatedByNickname,
+        });
       } catch {
         toast.error("공지사항을 불러오지 못했습니다.");
         navigate("/notices");
@@ -68,7 +91,7 @@ export default function NoticeDetail() {
     }
   };
 
-  const isUpdated = notice?.updatedAt && notice.updatedAt !== notice.createdAt;
+  const isUpdated = !!(notice?.updatedAt && notice.updatedAt !== notice.createdAt);
 
   if (isLoading) {
     return (
@@ -99,7 +122,7 @@ export default function NoticeDetail() {
             <div className="grid grid-cols-2 gap-x-8 gap-y-2 text-sm">
               <div className="flex items-center gap-2">
                 <span className="text-[#858481] shrink-0">최초 작성자</span>
-                <span className="text-[#242322] font-medium">{notice.authorNickname}</span>
+                <span className="text-[#242322] font-medium">{notice.authorNickname || "-"}</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-[#858481] shrink-0">최초 작성일</span>
@@ -108,16 +131,20 @@ export default function NoticeDetail() {
               <div className="flex items-center gap-2">
                 <span className="text-[#858481] shrink-0">최종 작성자</span>
                 <span className="text-[#242322] font-medium">
-                  {isUpdated ? (notice.updatedByNickname || notice.authorNickname) : notice.authorNickname}
+                  {isUpdated
+                    ? (notice.updatedByNickname || notice.authorNickname || "-")
+                    : (notice.authorNickname || "-")}
                 </span>
                 {isUpdated && (
-                  <span className="text-xs bg-[#fff3eb] text-[#ff7618] px-2 py-0.5 rounded-full font-semibold">수정됨</span>
+                  <span className="text-xs bg-[#fff3eb] text-[#ff7618] px-2 py-0.5 rounded-full font-semibold">
+                    수정됨
+                  </span>
                 )}
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-[#858481] shrink-0">최종 수정일</span>
                 <span className="text-[#242322] font-medium">
-                  {isUpdated ? formatDateTime(notice.updatedAt!) : formatDateTime(notice.createdAt)}
+                  {formatDateTime(isUpdated ? notice.updatedAt! : notice.createdAt)}
                 </span>
               </div>
             </div>
