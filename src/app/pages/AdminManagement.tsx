@@ -2,17 +2,11 @@ interface Admin {
   id: number;
   nickname: string;
   email: string;
-  provider: string;
-  createdAt: string;
 }
-
-const DUMMY_ADMINS: Admin[] = [
-  { id: 1, nickname: "noshel", email: "admin@bookiibookii.com", provider: "Google", createdAt: "2024.11.01" },
-  { id: 2, nickname: "booky", email: "booky@bookiibookii.com", provider: "Kakao", createdAt: "2025.01.15" },
-];
 
 // TODO: API 연동 시 교체
 // const { data } = await api.get("/api/admin/users?role=ADMIN");
+const DUMMY_ADMINS: Admin[] = [];
 
 export default function AdminManagement() {
   return (
@@ -32,34 +26,35 @@ export default function AdminManagement() {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full table-fixed">
+            <colgroup>
+              <col className="w-16" />
+              <col />
+              <col />
+            </colgroup>
             <thead>
               <tr className="border-b border-[#e2e1df] bg-[#f4f3f1]">
-                <th className="text-left py-3 px-4 text-sm font-medium text-[#858481] w-16">번호</th>
-                <th className="text-left py-3 px-4 text-sm font-medium text-[#858481]">닉네임</th>
-                <th className="text-left py-3 px-4 text-sm font-medium text-[#858481]">이메일</th>
-                <th className="text-left py-3 px-4 text-sm font-medium text-[#858481] w-32">소셜 로그인</th>
-                <th className="text-left py-3 px-4 text-sm font-medium text-[#858481] w-32">등록일</th>
+                <th className="text-left py-3 px-4 text-sm font-medium text-[#858481]">번호</th>
+                <th className="text-left py-3 px-4 text-sm font-medium text-[#858481]">닉네임 (부키부키)</th>
+                <th className="text-left py-3 px-4 text-sm font-medium text-[#858481]">이메일 주소</th>
               </tr>
             </thead>
             <tbody>
-              {DUMMY_ADMINS.map((admin) => (
-                <tr key={admin.id} className="border-b border-[#e2e1df] hover:bg-[#f4f3f1] transition-colors">
-                  <td className="py-3 px-4 text-sm text-[#858481]">{admin.id}</td>
-                  <td className="py-3 px-4 text-sm font-medium text-[#242322]">{admin.nickname}</td>
-                  <td className="py-3 px-4 text-sm text-[#858481]">{admin.email}</td>
-                  <td className="py-3 px-4">
-                    <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
-                      admin.provider === "Google"
-                        ? "bg-blue-100 text-blue-700"
-                        : "bg-yellow-100 text-yellow-700"
-                    }`}>
-                      {admin.provider}
-                    </span>
+              {DUMMY_ADMINS.length === 0 ? (
+                <tr>
+                  <td colSpan={3} className="text-center py-12 text-sm text-[#858481]">
+                    API 연동 후 관리자 목록이 표시됩니다.
                   </td>
-                  <td className="py-3 px-4 text-sm text-[#858481]">{admin.createdAt}</td>
                 </tr>
-              ))}
+              ) : (
+                DUMMY_ADMINS.map((admin) => (
+                  <tr key={admin.id} className="border-b border-[#e2e1df] hover:bg-[#f4f3f1] transition-colors">
+                    <td className="py-3 px-4 text-sm text-[#858481]">{admin.id}</td>
+                    <td className="py-3 px-4 text-sm font-medium text-[#242322]">{admin.nickname}</td>
+                    <td className="py-3 px-4 text-sm text-[#858481]">{admin.email}</td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
