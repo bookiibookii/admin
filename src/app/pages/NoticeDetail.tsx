@@ -23,6 +23,7 @@ interface Notice {
   createdAt: string;
   updatedAt: string | null;
   authorNickname: string;
+  updatedByNickname?: string;
 }
 
 
@@ -95,15 +96,30 @@ export default function NoticeDetail() {
         <div className="bg-white rounded-[20px] p-8 border border-[#e2e1df]">
           <div className="mb-6 pb-6 border-b border-[#e2e1df]">
             <h1 className="text-2xl font-bold text-[#242322] mb-4">{notice.title}</h1>
-            <div className="flex flex-wrap gap-4 text-sm text-[#858481]">
-              <span>작성자: <span className="text-[#242322]">{notice.authorNickname}</span></span>
-              <span>최초 작성일: <span className="text-[#242322]">{formatDateTime(notice.createdAt)}</span></span>
-              {isUpdated && (
-                <span className="flex items-center gap-1">
-                  수정일: <span className="text-[#242322]">{formatDateTime(notice.updatedAt!)}</span>
-                  <span className="text-xs bg-[#fff3eb] text-[#ff7618] px-2 py-0.5 rounded-full font-semibold">수정됨</span>
+            <div className="grid grid-cols-2 gap-x-8 gap-y-2 text-sm">
+              <div className="flex items-center gap-2">
+                <span className="text-[#858481] shrink-0">최초 작성자</span>
+                <span className="text-[#242322] font-medium">{notice.authorNickname}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-[#858481] shrink-0">최초 작성일</span>
+                <span className="text-[#242322] font-medium">{formatDateTime(notice.createdAt)}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-[#858481] shrink-0">최종 작성자</span>
+                <span className="text-[#242322] font-medium">
+                  {isUpdated ? (notice.updatedByNickname || notice.authorNickname) : notice.authorNickname}
                 </span>
-              )}
+                {isUpdated && (
+                  <span className="text-xs bg-[#fff3eb] text-[#ff7618] px-2 py-0.5 rounded-full font-semibold">수정됨</span>
+                )}
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-[#858481] shrink-0">최종 수정일</span>
+                <span className="text-[#242322] font-medium">
+                  {isUpdated ? formatDateTime(notice.updatedAt!) : formatDateTime(notice.createdAt)}
+                </span>
+              </div>
             </div>
           </div>
 

@@ -96,20 +96,25 @@ export default function NoticeList() {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full table-fixed">
+            <colgroup>
+              <col className="w-[110px]" />
+              <col />
+              <col className="w-[160px]" />
+              <col className="w-[140px]" />
+            </colgroup>
             <thead>
               <tr className="border-b border-[#e2e1df] bg-[#f4f3f1]">
-                <th className="text-left py-3 px-4 text-sm font-medium text-[#858481] w-28">공지 ID</th>
+                <th className="text-left py-3 px-4 text-sm font-medium text-[#858481]">공지 ID</th>
                 <th className="text-left py-3 px-4 text-sm font-medium text-[#858481]">제목</th>
-                <th className="text-left py-3 px-4 text-sm font-medium text-[#858481] w-36">최초 작성일</th>
-                <th className="text-left py-3 px-4 text-sm font-medium text-[#858481] w-36">수정일</th>
-                <th className="text-left py-3 px-4 text-sm font-medium text-[#858481] w-28">작성자</th>
+                <th className="text-left py-3 px-4 text-sm font-medium text-[#858481]">최종 수정일</th>
+                <th className="text-left py-3 px-4 text-sm font-medium text-[#858481]">최종 작성자</th>
               </tr>
             </thead>
             <tbody>
               {isLoading ? (
                 <tr>
-                  <td colSpan={5} className="text-center py-12">
+                  <td colSpan={4} className="text-center py-12">
                     <div className="flex justify-center">
                       <div className="w-6 h-6 border-2 border-[#ff7618] border-t-transparent rounded-full animate-spin" />
                     </div>
@@ -117,13 +122,14 @@ export default function NoticeList() {
                 </tr>
               ) : notices.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="text-center py-8 text-[#858481]">
+                  <td colSpan={4} className="text-center py-8 text-[#858481]">
                     등록된 공지사항이 없습니다.
                   </td>
                 </tr>
               ) : (
                 notices.map((notice) => {
                   const isUpdated = notice.updatedAt && notice.updatedAt !== notice.createdAt;
+                  const lastModifiedAt = isUpdated ? notice.updatedAt! : notice.createdAt;
                   return (
                     <tr
                       key={notice.id}
@@ -133,16 +139,18 @@ export default function NoticeList() {
                       <td className="py-3 px-4 text-sm text-[#858481] font-mono">
                         {formatNoticeId(notice.id)}
                       </td>
-                      <td className="py-3 px-4 text-sm text-[#242322] font-medium">
-                        {notice.title}
+                      <td className="py-3 px-4 max-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm text-[#242322] font-medium truncate">{notice.title}</span>
+                          {isUpdated && (
+                            <span className="shrink-0 text-xs bg-[#fff3eb] text-[#ff7618] px-2 py-0.5 rounded-full font-semibold">수정됨</span>
+                          )}
+                        </div>
                       </td>
                       <td className="py-3 px-4 text-sm text-[#858481]">
-                        {formatRelativeTime(notice.createdAt)}
+                        {formatRelativeTime(lastModifiedAt)}
                       </td>
-                      <td className="py-3 px-4 text-sm text-[#858481]">
-                        {isUpdated ? formatRelativeTime(notice.updatedAt!) : ""}
-                      </td>
-                      <td className="py-3 px-4 text-sm text-[#858481]">
+                      <td className="py-3 px-4 text-sm text-[#858481] truncate">
                         {notice.authorNickname}
                       </td>
                     </tr>

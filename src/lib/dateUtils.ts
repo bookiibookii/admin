@@ -1,5 +1,7 @@
 function parseDate(dateString: string): Date {
-  const s = dateString.replace(" ", "T");
+  if (!dateString) return new Date(NaN);
+  // 마이크로초(6자리) → 밀리초(3자리) 절삭, 공백 구분자 → T 변환
+  const s = dateString.replace(" ", "T").replace(/(\.\d{3})\d+/, "$1");
   return new Date(s.endsWith("Z") || /[+-]\d{2}:\d{2}$/.test(s) ? s : s + "Z");
 }
 
