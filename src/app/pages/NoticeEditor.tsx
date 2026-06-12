@@ -9,6 +9,7 @@ import api from "../../lib/api";
 
 interface NoticeDetail {
   title: string;
+  summary: string;
   content: string;
   createdAt: string;
   updatedAt: string | null;
@@ -30,6 +31,7 @@ export default function NoticeEditor() {
   const isEdit = !!noticeId;
 
   const [title, setTitle] = useState("");
+  const [summary, setSummary] = useState("");
   const [content, setContent] = useState("");
   const [detail, setDetail] = useState<NoticeDetail | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -42,6 +44,7 @@ export default function NoticeEditor() {
         const { data } = await api.get(`/api/admin/notice/${noticeId}`);
         if (data.isSuccess) {
           setTitle(data.result.title || "");
+          setSummary(data.result.summary || "");
           setContent(data.result.content || "");
           setDetail(data.result);
         } else {
@@ -60,6 +63,10 @@ export default function NoticeEditor() {
       toast.error("제목을 입력해주세요.");
       return;
     }
+    if (!summary.trim()) {
+      toast.error("한줄 요약을 입력해주세요.");
+      return;
+    }
     if (!content.trim()) {
       toast.error("내용을 입력해주세요.");
       return;
@@ -67,7 +74,7 @@ export default function NoticeEditor() {
 
     setIsSaving(true);
     try {
-      const body = { title: title.trim(), content: content.trim() };
+      const body = { title: title.trim(), summary: summary.trim(), content: content.trim() };
 
       if (isEdit) {
         await api.patch(`/api/admin/notice/${noticeId}`, body);
@@ -131,6 +138,19 @@ export default function NoticeEditor() {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="공지사항 제목을 입력하세요"
+                className="bg-[#f4f3f1] border-[#e2e1df] rounded-[10px]"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="summary" className="text-[#242322] font-medium">
+                한줄 요약 <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="summary"
+                value={summary}
+                onChange={(e) => setSummary(e.target.value)}
+                placeholder="앱 목록에 표시될 한줄 요약을 입력하세요"
                 className="bg-[#f4f3f1] border-[#e2e1df] rounded-[10px]"
               />
             </div>
