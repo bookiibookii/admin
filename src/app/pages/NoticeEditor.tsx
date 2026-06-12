@@ -24,11 +24,10 @@ function formatDateTime(dateString: string): string {
   return `${yyyy}.${mm}.${dd} ${hh}:${min}`;
 }
 
-
 export default function NoticeEditor() {
-  const { id } = useParams();
+  const { id: noticeId } = useParams();
   const navigate = useNavigate();
-  const isEdit = !!id;
+  const isEdit = !!noticeId;
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -40,7 +39,7 @@ export default function NoticeEditor() {
 
     const fetchDetail = async () => {
       try {
-        const { data } = await api.get(`/api/notice/${id}`);
+        const { data } = await api.get(`/api/admin/notice/${noticeId}`);
         if (data.isSuccess) {
           setTitle(data.result.title || "");
           setContent(data.result.content || "");
@@ -54,7 +53,7 @@ export default function NoticeEditor() {
     };
 
     fetchDetail();
-  }, [id, isEdit]);
+  }, [noticeId, isEdit]);
 
   const handleSave = async () => {
     if (!title.trim()) {
@@ -71,12 +70,14 @@ export default function NoticeEditor() {
       const body = { title: title.trim(), content: content.trim() };
 
       if (isEdit) {
-        await api.patch(`/api/admin/notice/${id}`, body);
+        await api.patch(`/api/admin/notice/${noticeId}`, body);
       } else {
         await api.post("/api/admin/notice", body);
       }
 
-      toast.success(isEdit ? "공지사항이 수정되었습니다." : "공지사항이 등록되었습니다.");
+      toast.success(
+        isEdit ? "공지사항이 수정되었습니다." : "공지사항이 등록되었습니다.",
+      );
       navigate("/notices");
     } catch (error: any) {
       toast.error(error.response?.data?.message || "저장에 실패했습니다.");
@@ -91,7 +92,7 @@ export default function NoticeEditor() {
     <div className="p-4 md:p-8">
       <div className="mb-6">
         <button
-          onClick={() => navigate(isEdit ? `/notices/${id}` : "/notices")}
+          onClick={() => navigate(isEdit ? `/notices/${noticeId}` : "/notices")}
           className="flex items-center gap-2 text-[#5e5d5b] hover:text-[#242322] mb-4"
         >
           <ArrowLeft className="w-4 h-4" />
@@ -108,7 +109,9 @@ export default function NoticeEditor() {
                 <span>·</span>
                 <span className="flex items-center gap-1">
                   수정: {formatDateTime(detail.updatedAt!)}
-                  <span className="text-xs bg-[#fff3eb] text-[#ff7618] px-2 py-0.5 rounded-full font-semibold">수정됨</span>
+                  <span className="text-xs bg-[#fff3eb] text-[#ff7618] px-2 py-0.5 rounded-full font-semibold">
+                    수정됨
+                  </span>
                 </span>
               </>
             )}
@@ -157,7 +160,9 @@ export default function NoticeEditor() {
                 {isEdit ? "수정 저장" : "등록"}
               </button>
               <button
-                onClick={() => navigate(isEdit ? `/notices/${id}` : "/notices")}
+                onClick={() =>
+                  navigate(isEdit ? `/notices/${noticeId}` : "/notices")
+                }
                 className="px-6 bg-white text-[#5e5d5b] py-3 rounded-[10px] font-medium border border-[#e2e1df] hover:bg-[#f4f3f1] transition-colors"
               >
                 취소
