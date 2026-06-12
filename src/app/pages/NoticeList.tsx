@@ -32,6 +32,7 @@ function formatNoticeId(id: number): string {
 
 export default function NoticeList() {
   const navigate = useNavigate();
+  const adminNickname = localStorage.getItem("adminNickname") || "";
   const [notices, setNotices] = useState<Notice[]>([]);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -151,7 +152,7 @@ export default function NoticeList() {
                         {formatRelativeTime(lastModifiedAt)}
                       </td>
                       <td className="py-3 px-4 text-sm text-[#858481] truncate">
-                        {notice.authorNickname}
+                        {notice.authorNickname || adminNickname || "-"}
                       </td>
                     </tr>
                   );

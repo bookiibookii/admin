@@ -30,6 +30,7 @@ interface Notice {
 export default function NoticeDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const adminNickname = localStorage.getItem("adminNickname") || "";
   const [notice, setNotice] = useState<Notice | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -122,7 +123,7 @@ export default function NoticeDetail() {
             <div className="grid grid-cols-2 gap-x-8 gap-y-2 text-sm">
               <div className="flex items-center gap-2">
                 <span className="text-[#858481] shrink-0">최초 작성자</span>
-                <span className="text-[#242322] font-medium">{notice.authorNickname || "-"}</span>
+                <span className="text-[#242322] font-medium">{notice.authorNickname || adminNickname || "-"}</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-[#858481] shrink-0">최초 작성일</span>
@@ -132,8 +133,8 @@ export default function NoticeDetail() {
                 <span className="text-[#858481] shrink-0">최종 작성자</span>
                 <span className="text-[#242322] font-medium">
                   {isUpdated
-                    ? (notice.updatedByNickname || notice.authorNickname || "-")
-                    : (notice.authorNickname || "-")}
+                    ? (notice.updatedByNickname || notice.authorNickname || adminNickname || "-")
+                    : (notice.authorNickname || adminNickname || "-")}
                 </span>
                 {isUpdated && (
                   <span className="text-xs bg-[#fff3eb] text-[#ff7618] px-2 py-0.5 rounded-full font-semibold">
