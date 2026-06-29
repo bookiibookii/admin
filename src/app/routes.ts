@@ -5,6 +5,8 @@ import Dashboard from "./pages/Dashboard";
 import NoticeList from "./pages/NoticeList";
 import NoticeDetail from "./pages/NoticeDetail";
 import NoticeEditor from "./pages/NoticeEditor";
+import FaqList from "./pages/FaqList";
+import FaqEditor from "./pages/FaqEditor";
 import UserStats from "./pages/UserStats";
 import GroupStats from "./pages/GroupStats";
 import GroupDetail from "./pages/GroupDetail";
@@ -34,6 +36,9 @@ export const router = createBrowserRouter([
           { path: "notices/new", Component: NoticeEditor },
           { path: "notices/:id", Component: NoticeDetail },
           { path: "notices/:id/edit", Component: NoticeEditor },
+          { path: "faqs", Component: FaqList },
+          { path: "faqs/new", Component: FaqEditor },
+          { path: "faqs/:id/edit", Component: FaqEditor },
           { path: "user-stats", Component: UserStats },
           { path: "group-stats", Component: GroupStats },
           { path: "group-stats/:id", Component: GroupDetail },

@@ -3,13 +3,14 @@ import { useState, useEffect } from "react";
 import { Outlet, Link, useNavigate, useLocation } from "react-router";
 import { toast } from "sonner";
 import {
-  LayoutDashboard, Bell, Users, BarChart2, ShieldCheck,
+  LayoutDashboard, Bell, HelpCircle, Users, BarChart2, ShieldCheck,
   LogOut, Menu, X, ChevronLeft, ChevronRight,
 } from "lucide-react";
 
 const menuItems = [
   { path: "/", icon: LayoutDashboard, label: "대시보드" },
   { path: "/notices", icon: Bell, label: "공지사항" },
+  { path: "/faqs", icon: HelpCircle, label: "FAQ" },
   { path: "/user-stats", icon: Users, label: "유저 통계" },
   { path: "/group-stats", icon: BarChart2, label: "그룹 통계" },
   { path: "/admins", icon: ShieldCheck, label: "관리자" },
