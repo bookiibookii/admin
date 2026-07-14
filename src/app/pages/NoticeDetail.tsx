@@ -39,36 +39,24 @@ export default function NoticeDetail() {
     const fetchDetail = async () => {
       setIsLoading(true);
       try {
-        // 어드민 목록 API(날짜·작성자 포함)와 공개 상세 API(content)를 병렬 호출 후 병합
-        const [adminRes, detailRes] = await Promise.all([
-          api.get("/api/admin/notice"),
-          api.get(`/api/notice/${id}`),
-        ]);
+        const { data } = await api.get(`/api/admin/notice/${id}`);
 
-        const adminNotice = adminRes.data?.isSuccess
-          ? (adminRes.data.result || []).find(
-              (n: any) => String(n.id) === String(id) || String(n.noticeId) === String(id)
-            )
-          : null;
-
-        const detail = detailRes.data?.isSuccess ? detailRes.data.result : null;
-
-        if (!adminNotice && !detail) {
+        if (!data?.isSuccess || !data.result) {
           toast.error("공지사항을 찾을 수 없습니다.");
           navigate("/notices");
           return;
         }
 
+        const result = data.result;
         setNotice({
-          id: Number(id),
-          title: adminNotice?.title ?? detail?.title ?? "",
-          content: detail?.content ?? adminNotice?.content ?? "",
-          summary: adminNotice?.summary ?? detail?.summary,
-          // 어드민 API 날짜 우선 (포맷이 안정적)
-          createdAt: adminNotice?.createdAt ?? detail?.createdAt ?? "",
-          updatedAt: adminNotice?.updatedAt ?? detail?.updatedAt ?? null,
-          authorNickname: adminNotice?.authorNickname ?? detail?.authorNickname ?? "-",
-          updatedByNickname: adminNotice?.updatedByNickname ?? detail?.updatedByNickname,
+          id: result.noticeId,
+          title: result.title ?? "",
+          content: result.content ?? "",
+          summary: result.summary,
+          createdAt: result.createdAt ?? "",
+          updatedAt: result.updatedAt ?? null,
+          authorNickname: result.authorNickname ?? "-",
+          updatedByNickname: result.updatedByNickname,
         });
       } catch {
         toast.error("공지사항을 불러오지 못했습니다.");

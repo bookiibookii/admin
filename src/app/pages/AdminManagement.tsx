@@ -1,14 +1,36 @@
+import { useState, useEffect } from "react";
+import { toast } from "sonner";
+import api from "../../lib/api";
+
 interface Admin {
   id: number;
   nickname: string;
-  email: string;
+  introduction: string;
 }
 
-// TODO: API 연동 시 교체
-// const { data } = await api.get("/api/admin/users?role=ADMIN");
-const DUMMY_ADMINS: Admin[] = [];
-
 export default function AdminManagement() {
+  const [admins, setAdmins] = useState<Admin[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchAdmins = async () => {
+      setIsLoading(true);
+      try {
+        const { data } = await api.get("/api/admin/admins");
+        if (data.isSuccess) {
+          setAdmins(data.result || []);
+        } else {
+          toast.error(data.message || "관리자 목록을 불러오지 못했습니다.");
+        }
+      } catch (error: any) {
+        toast.error(error.response?.data?.message || "서버 통신 오류가 발생했습니다.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchAdmins();
+  }, []);
+
   return (
     <div className="p-4 md:p-8">
       <div className="mb-8">
@@ -21,7 +43,7 @@ export default function AdminManagement() {
       <div className="bg-white rounded-[20px] border border-[#e2e1df] overflow-hidden">
         <div className="p-6 border-b border-[#e2e1df]">
           <p className="text-sm text-[#858481]">
-            총 <span className="font-semibold text-[#242322]">{DUMMY_ADMINS.length}</span>명
+            총 <span className="font-semibold text-[#242322]">{admins.length}</span>명
           </p>
         </div>
 
@@ -36,22 +58,30 @@ export default function AdminManagement() {
               <tr className="border-b border-[#e2e1df] bg-[#f4f3f1]">
                 <th className="text-left py-3 px-4 text-sm font-medium text-[#858481]">번호</th>
                 <th className="text-left py-3 px-4 text-sm font-medium text-[#858481]">닉네임 (부키부키)</th>
-                <th className="text-left py-3 px-4 text-sm font-medium text-[#858481]">이메일 주소</th>
+                <th className="text-left py-3 px-4 text-sm font-medium text-[#858481]">소개</th>
               </tr>
             </thead>
             <tbody>
-              {DUMMY_ADMINS.length === 0 ? (
+              {isLoading ? (
+                <tr>
+                  <td colSpan={3} className="text-center py-12">
+                    <div className="flex justify-center">
+                      <div className="w-6 h-6 border-2 border-[#ff7618] border-t-transparent rounded-full animate-spin" />
+                    </div>
+                  </td>
+                </tr>
+              ) : admins.length === 0 ? (
                 <tr>
                   <td colSpan={3} className="text-center py-12 text-sm text-[#858481]">
-                    API 연동 후 관리자 목록이 표시됩니다.
+                    등록된 관리자가 없습니다.
                   </td>
                 </tr>
               ) : (
-                DUMMY_ADMINS.map((admin) => (
+                admins.map((admin) => (
                   <tr key={admin.id} className="border-b border-[#e2e1df] hover:bg-[#f4f3f1] transition-colors">
                     <td className="py-3 px-4 text-sm text-[#858481]">{admin.id}</td>
                     <td className="py-3 px-4 text-sm font-medium text-[#242322]">{admin.nickname}</td>
-                    <td className="py-3 px-4 text-sm text-[#858481]">{admin.email}</td>
+                    <td className="py-3 px-4 text-sm text-[#858481] truncate">{admin.introduction || "-"}</td>
                   </tr>
                 ))
               )}
