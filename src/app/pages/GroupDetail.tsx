@@ -12,6 +12,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "../components/ui/alert-dialog";
+import api from "../../lib/api";
 import { DUMMY_GROUPS, STAGE_BADGE, type Group, type GroupStage } from "./GroupStats";
 
 const STAGE_ORDER: GroupStage[] = ["모집 중", "내 책 읽기", "교환", "파트너 책 읽기", "반납", "종료"];
@@ -38,12 +39,16 @@ export default function GroupDetail() {
   const currentStageIndex = STAGE_ORDER.indexOf(group.stage);
   const isTerminated = group.stage === "종료";
 
-  const handleForceClose = () => {
-    // TODO: API 연동 시 교체
-    // await api.patch(`/api/admin/groups/${id}/force-close`);
-    setGroup({ ...group, stage: "종료" });
-    toast.success("그룹이 강제 종료되었습니다.");
-    setShowForceCloseDialog(false);
+  const handleForceClose = async () => {
+    try {
+      await api.patch(`/api/admin/groups/${id}/force-close`);
+      setGroup({ ...group, stage: "종료" });
+      toast.success("그룹이 강제 종료되었습니다.");
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "그룹 강제 종료에 실패했습니다.");
+    } finally {
+      setShowForceCloseDialog(false);
+    }
   };
 
   return (

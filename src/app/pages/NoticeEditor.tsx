@@ -33,7 +33,7 @@ export default function NoticeEditor() {
 
     const fetchDetail = async () => {
       try {
-        const { data } = await api.get(`/api/notice/${noticeId}`);
+        const { data } = await api.get(`/api/admin/notice/${noticeId}`);
         if (data.isSuccess) {
           setTitle(data.result.title || "");
           setSummary(data.result.summary || "");
